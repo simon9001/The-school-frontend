@@ -5,7 +5,7 @@ import {
     CalendarDays, ClipboardCheck, ShieldAlert, ArrowUpDown, MessageSquare,
     Bell, UserSquare2, Briefcase, CalendarClock, FileSignature, Star,
     UserRoundCog, ClipboardList, Award, Home, HeartPulse, Bus,
-    CalendarRange, Library, Trophy, FileCheck2, FileText, Settings,
+    CalendarRange, Library, Trophy, FileCheck2, FileText, Settings, UserCheck,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -54,18 +54,19 @@ export const navigation: NavSection[] = [
         title: 'Students & Admissions',
         items: [
             { name: 'Admissions', path: '/dashboard/admissions', icon: UserSquare2, permission: 'admissions.view', built: true },
-            { name: 'Students', path: '/dashboard/students', icon: GraduationCap, built: true },
+            { name: 'Students', path: '/dashboard/students', icon: GraduationCap, permission: 'students.view', built: true },
+            { name: 'Guardians', path: '/dashboard/guardians', icon: UserCheck, permission: 'guardians.view' },
         ],
     },
     {
         title: 'Academic',
         items: [
-            { name: 'Teachers', path: '/dashboard/academic/teachers', icon: Users },
-            { name: 'Subjects', path: '/dashboard/academic/subjects', icon: BookOpen },
-            { name: 'Exams & Grading', path: '/dashboard/academic/exams', icon: ClipboardCheck },
-            { name: 'Attendance', path: '/dashboard/academic/attendance', icon: CalendarDays },
-            { name: 'Timetable', path: '/dashboard/academic/timetable', icon: CalendarRange, permission: 'timetable.view' },
-            { name: 'Promotions', path: '/dashboard/academic/promotions', icon: ArrowUpDown },
+            { name: 'Teachers', path: '/dashboard/academic/teachers', icon: Users, permission: 'teachers.view', built: true },
+            { name: 'Subjects', path: '/dashboard/academic/subjects', icon: BookOpen, permission: 'subjects.view', built: true },
+            { name: 'Exams & Grading', path: '/dashboard/academic/exams', icon: ClipboardCheck, permission: 'exams.view' },
+            { name: 'Attendance', path: '/dashboard/academic/attendance', icon: CalendarDays, permission: 'attendance.view', built: true },
+            { name: 'Timetable', path: '/dashboard/academic/timetable', icon: CalendarRange, permission: 'timetable.view', built: true },
+            { name: 'Promotions', path: '/dashboard/academic/promotions', icon: ArrowUpDown, permission: 'promotions.view' },
             { name: 'Library', path: '/dashboard/academic/library', icon: Library, permission: 'library.view' },
             { name: 'Clubs & Competitions', path: '/dashboard/academic/clubs', icon: Trophy, permission: 'clubs.view' },
         ],

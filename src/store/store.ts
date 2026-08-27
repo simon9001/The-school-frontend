@@ -11,6 +11,10 @@ import { dashboardApi } from '../modules/dashboard/DashboardApi'
 import { studentApi } from '../modules/students/StudentApi'
 import { admissionApi } from '../modules/admissions/AdmissionApi'
 import { feesApi } from '../modules/fees/FeesApi'
+import { teacherApi } from '../modules/teachers/TeacherApi'
+import { subjectApi } from '../modules/subjects/SubjectApi'
+import { attendanceApi } from '../modules/attendance/AttendanceApi'
+import { timetableApi } from '../modules/timetable/TimetableApi'
 
 const authPersistConfig = {
   key: 'auth',
@@ -32,6 +36,10 @@ export const store = configureStore({
     [studentApi.reducerPath]: studentApi.reducer,
     [admissionApi.reducerPath]: admissionApi.reducer,
     [feesApi.reducerPath]: feesApi.reducer,
+    [teacherApi.reducerPath]: teacherApi.reducer,
+    [subjectApi.reducerPath]: subjectApi.reducer,
+    [attendanceApi.reducerPath]: attendanceApi.reducer,
+    [timetableApi.reducerPath]: timetableApi.reducer,
 
     authSlice: persistedAuthReducer,
   },
@@ -40,7 +48,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(AuthApi.middleware, accountApi.middleware, fundApi.middleware, periodApi.middleware, journalApi.middleware, dashboardApi.middleware, studentApi.middleware, admissionApi.middleware, feesApi.middleware),
+    }).concat(AuthApi.middleware, accountApi.middleware, fundApi.middleware, periodApi.middleware, journalApi.middleware, dashboardApi.middleware, studentApi.middleware, admissionApi.middleware, feesApi.middleware, teacherApi.middleware, subjectApi.middleware, attendanceApi.middleware, timetableApi.middleware),
 })
 
 export const persistor = persistStore(store)

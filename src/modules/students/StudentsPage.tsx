@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { GraduationCap, Plus, X, SaveIcon, XCircle, Search } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import type { RootState } from '../../store/store'
 import {
     useGetAllClassesQuery,
     useGetStreamsByClassQuery,
@@ -22,6 +24,9 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 const StudentsPage: React.FC = () => {
+    const { user } = useSelector((state: RootState) => state.authSlice)
+    const canManage = user?.permissions.includes('students.manage') ?? false
+
     const [classFilter, setClassFilter] = useState<string>('')
     const [search, setSearch] = useState('')
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -87,10 +92,12 @@ const StudentsPage: React.FC = () => {
                     </div>
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Students</h1>
                 </div>
-                <button onClick={() => setIsAddModalOpen(true)} className="btn bg-green-800 hover:bg-green-900 text-white flex items-center gap-2">
-                    <Plus size={16} />
-                    New Student
-                </button>
+                {canManage && (
+                    <button onClick={() => setIsAddModalOpen(true)} className="btn bg-green-800 hover:bg-green-900 text-white flex items-center gap-2">
+                        <Plus size={16} />
+                        New Student
+                    </button>
+                )}
             </div>
 
             <div className="flex items-center gap-3 mb-4 flex-wrap">
