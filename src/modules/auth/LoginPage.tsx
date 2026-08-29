@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router'
-import { GraduationCap, LogIn } from 'lucide-react'
+import { GraduationCap, LogIn, Eye, EyeOff } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import { AuthApi } from './AuthApi'
 import { setCredentials } from './AuthSlice'
@@ -10,6 +10,7 @@ import type { AppDispatch } from '../../store/store'
 import type { LoginFormValues } from './types'
 
 const Login: React.FC = () => {
+    const [showPassword, setShowPassword] = useState(false)
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>()
     const [login, { isLoading }] = AuthApi.useLoginMutation()
     const dispatch = useDispatch<AppDispatch>()
@@ -51,12 +52,23 @@ const Login: React.FC = () => {
 
                     <div className="mb-6">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="input input-bordered w-full"
-                            {...register('password', { required: 'Password is required' })}
-                        />
+                        <div className="relative">
+                            <input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                className="input input-bordered w-full pr-10"
+                                {...register('password', { required: 'Password is required' })}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                tabIndex={-1}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                         {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                     </div>
 
