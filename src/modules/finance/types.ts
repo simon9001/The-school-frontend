@@ -76,3 +76,58 @@ export interface TrialBalanceResult {
   totalCredit: number
   isBalanced: boolean
 }
+
+export type JournalStatus = 'draft' | 'pending_approval' | 'posted' | 'rejected' | 'reversed'
+
+export interface JournalEntry {
+  id: number
+  entryNo: string
+  periodId: number
+  entryDate: string
+  description: string
+  sourceModule: string
+  sourceReference: string | null
+  status: JournalStatus
+  reversalOfId: number | null
+  createdBy: number
+  submittedAt: string | null
+  approvedBy: number | null
+  approvedAt: string | null
+  rejectionReason: string | null
+  postedBy: number | null
+  postedAt: string | null
+  createdAt: string
+}
+
+export interface JournalLine {
+  id: number
+  journalEntryId: number
+  lineNo: number
+  accountId: number
+  fundId: number
+  debit: string
+  credit: string
+  description: string | null
+}
+
+export interface JournalEntryWithLines extends JournalEntry {
+  lines: JournalLine[]
+}
+
+export type NewJournalLineValues = {
+  accountId: number
+  fundId: number
+  debit?: number
+  credit?: number
+  description?: string
+}
+
+export type NewJournalEntryValues = {
+  periodId: number
+  entryDate: string
+  description: string
+  sourceModule: string
+  sourceReference?: string
+  createdBy: number
+  lines: NewJournalLineValues[]
+}

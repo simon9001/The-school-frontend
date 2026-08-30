@@ -5,7 +5,8 @@ import {
     CalendarDays, ClipboardCheck, ShieldAlert, ArrowUpDown, MessageSquare,
     Bell, UserSquare2, Briefcase, CalendarClock, FileSignature, Star,
     UserRoundCog, ClipboardList, Award, Home, HeartPulse, Bus,
-    CalendarRange, Library, Trophy, FileCheck2, FileText, Settings, UserCheck,
+    CalendarRange, Library, Trophy, FileCheck2, FileText, UserCheck,
+    UserCog, ShieldCheck,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -38,15 +39,15 @@ export const navigation: NavSection[] = [
         items: [
             { name: 'Chart of Accounts', path: '/dashboard/finance/accounts', icon: BookOpen, permission: 'ledger.journal.view', built: true },
             { name: 'Funds / Voteheads', path: '/dashboard/finance/funds', icon: Landmark, permission: 'ledger.journal.view', built: true },
-            { name: 'Journal Entries', path: '/dashboard/finance/journal', icon: Scale, permission: 'ledger.journal.view' },
+            { name: 'Journal Entries', path: '/dashboard/finance/journal', icon: Scale, permission: 'ledger.journal.view', built: true },
             { name: 'Trial Balance', path: '/dashboard/finance/trial-balance', icon: Scale, permission: 'ledger.journal.view', built: true },
-            { name: 'Budgets', path: '/dashboard/finance/budgets', icon: Wallet, permission: 'budget.view' },
+            { name: 'Budgets', path: '/dashboard/finance/budgets', icon: Wallet, permission: 'budget.view', built: true },
             { name: 'Fees', path: '/dashboard/finance/fees', icon: HandCoins, permission: 'fees.view', built: true },
-            { name: 'Grants / Capitation', path: '/dashboard/finance/grants', icon: PiggyBank, permission: 'grants.view' },
-            { name: 'Procurement', path: '/dashboard/finance/procurement', icon: ShoppingCart, permission: 'procurement.view' },
-            { name: 'Payroll', path: '/dashboard/finance/payroll', icon: Banknote, permission: 'payroll.view' },
-            { name: 'Fixed Assets', path: '/dashboard/finance/assets', icon: Boxes, permission: 'assets.view' },
-            { name: 'Inventory', path: '/dashboard/finance/inventory', icon: Package, permission: 'inventory.view' },
+            { name: 'Grants / Capitation', path: '/dashboard/finance/grants', icon: PiggyBank, permission: 'grants.view', built: true },
+            { name: 'Procurement', path: '/dashboard/finance/procurement', icon: ShoppingCart, permission: 'procurement.view', built: true },
+            { name: 'Payroll', path: '/dashboard/finance/payroll', icon: Banknote, permission: 'payroll.view', built: true },
+            { name: 'Fixed Assets', path: '/dashboard/finance/assets', icon: Boxes, permission: 'assets.view', built: true },
+            { name: 'Inventory', path: '/dashboard/finance/inventory', icon: Package, permission: 'inventory.view', built: true },
             { name: 'Banking', path: '/dashboard/finance/banking', icon: University, permission: 'banking.manage' },
         ],
     },
@@ -110,13 +111,14 @@ export const navigation: NavSection[] = [
         items: [
             { name: 'Regulatory Reports', path: '/dashboard/compliance/reports', icon: ClipboardList, permission: 'compliance.view' },
             { name: 'Documents', path: '/dashboard/compliance/documents', icon: FileText, permission: 'documents.view' },
-            { name: 'Compliance Log', path: '/dashboard/compliance/audit', icon: FileCheck2, permission: 'audit.view' },
         ],
     },
     {
         title: 'Administration',
         items: [
-            { name: 'Users & Roles', path: '/dashboard/admin/users', icon: Settings, permission: 'users.manage' },
+            { name: 'Users', path: '/dashboard/admin/users', icon: UserCog, permission: 'users.manage', built: true },
+            { name: 'Roles', path: '/dashboard/admin/roles', icon: ShieldCheck, permission: 'roles.manage', built: true },
+            { name: 'Audit Log', path: '/dashboard/admin/audit-log', icon: FileCheck2, permission: 'audit.view', built: true },
         ],
     },
 ]

@@ -15,6 +15,13 @@ import { teacherApi } from '../modules/teachers/TeacherApi'
 import { subjectApi } from '../modules/subjects/SubjectApi'
 import { attendanceApi } from '../modules/attendance/AttendanceApi'
 import { timetableApi } from '../modules/timetable/TimetableApi'
+import { identityApi } from '../modules/identity/IdentityApi'
+import { budgetApi } from '../modules/budgets/BudgetApi'
+import { grantApi } from '../modules/grants/GrantApi'
+import { procurementApi } from '../modules/procurement/ProcurementApi'
+import { payrollApi } from '../modules/payroll/PayrollApi'
+import { assetApi } from '../modules/assets/AssetApi'
+import { inventoryApi } from '../modules/inventory/InventoryApi'
 
 const authPersistConfig = {
   key: 'auth',
@@ -40,6 +47,13 @@ export const store = configureStore({
     [subjectApi.reducerPath]: subjectApi.reducer,
     [attendanceApi.reducerPath]: attendanceApi.reducer,
     [timetableApi.reducerPath]: timetableApi.reducer,
+    [identityApi.reducerPath]: identityApi.reducer,
+    [budgetApi.reducerPath]: budgetApi.reducer,
+    [grantApi.reducerPath]: grantApi.reducer,
+    [procurementApi.reducerPath]: procurementApi.reducer,
+    [payrollApi.reducerPath]: payrollApi.reducer,
+    [assetApi.reducerPath]: assetApi.reducer,
+    [inventoryApi.reducerPath]: inventoryApi.reducer,
 
     authSlice: persistedAuthReducer,
   },
@@ -48,7 +62,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(AuthApi.middleware, accountApi.middleware, fundApi.middleware, periodApi.middleware, journalApi.middleware, dashboardApi.middleware, studentApi.middleware, admissionApi.middleware, feesApi.middleware, teacherApi.middleware, subjectApi.middleware, attendanceApi.middleware, timetableApi.middleware),
+    }).concat(AuthApi.middleware, accountApi.middleware, fundApi.middleware, periodApi.middleware, journalApi.middleware, dashboardApi.middleware, studentApi.middleware, admissionApi.middleware, feesApi.middleware, teacherApi.middleware, subjectApi.middleware, attendanceApi.middleware, timetableApi.middleware, identityApi.middleware, budgetApi.middleware, grantApi.middleware, procurementApi.middleware, payrollApi.middleware, assetApi.middleware, inventoryApi.middleware),
 })
 
 export const persistor = persistStore(store)
