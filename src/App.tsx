@@ -23,6 +23,8 @@ import ProcurementPage from './modules/procurement/ProcurementPage'
 import PayrollPage from './modules/payroll/PayrollPage'
 import AssetsPage from './modules/assets/AssetsPage'
 import InventoryPage from './modules/inventory/InventoryPage'
+import FiscalPeriodsPage from './modules/finance/FiscalPeriodsPage'
+import SystemHealthPage from './modules/system/SystemHealthPage'
 import PrivateRoute from './components/auth/PrivateRoute'
 import PublicRoute from './components/auth/PublicRoute'
 import { navigation } from './dashboardDesign/navigation'
@@ -64,6 +66,8 @@ function App() {
     { path: '/dashboard/academic/timetable', element: <PrivateRoute requiredPermission="timetable.view"><TimetablePage /></PrivateRoute> },
     { path: '/dashboard/admin/users', element: <PrivateRoute requiredPermission="users.manage"><UsersPage /></PrivateRoute> },
     { path: '/dashboard/admin/roles', element: <PrivateRoute requiredPermission="roles.manage"><RolesPage /></PrivateRoute> },
+    { path: '/dashboard/admin/periods', element: <PrivateRoute requiredPermission="ledger.periods.manage"><FiscalPeriodsPage /></PrivateRoute> },
+    { path: '/dashboard/admin/system', element: <PrivateRoute requiredPermission="users.manage"><SystemHealthPage /></PrivateRoute> },
     { path: '/dashboard/admin/audit-log', element: <PrivateRoute requiredPermission="audit.view"><AuditLogPage /></PrivateRoute> },
     { path: '/dashboard/finance/budgets', element: <PrivateRoute requiredPermission="budget.view"><BudgetsPage /></PrivateRoute> },
     { path: '/dashboard/finance/grants', element: <PrivateRoute requiredPermission="grants.view"><GrantsPage /></PrivateRoute> },

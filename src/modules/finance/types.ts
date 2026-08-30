@@ -57,6 +57,17 @@ export interface FiscalPeriod {
   createdAt: string
 }
 
+export type NewPeriodValues = {
+  name: string
+  fiscalYear: number
+  /** 1-3, or omitted for a full-year period. */
+  term?: number
+  startDate: string
+  endDate: string
+}
+
+export type UpdatePeriodValues = Partial<NewPeriodValues>
+
 export interface TrialBalanceRow {
   accountId: number
   code: string

@@ -4,7 +4,14 @@ import { useSelector } from 'react-redux'
 import type { RootState } from '../store/store'
 import { navigation } from './navigation'
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+    /** Whether the off-canvas drawer is open. Ignored at the `lg` breakpoint
+     *  and above, where the sidebar is always visible in the layout. */
+    isOpen: boolean
+    onClose: () => void
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const location = useLocation()
     const { user } = useSelector((state: RootState) => state.authSlice)
     const permissions = user?.permissions ?? []
@@ -16,7 +23,10 @@ const Sidebar: React.FC = () => {
     const canSee = (permission?: string) => !permission || permissions.includes(permission)
 
     return (
-        <aside className="bg-white border-r border-gray-200 shadow-sm w-64 min-h-screen fixed left-0 top-16 z-40 overflow-y-auto">
+        <aside
+            className={`bg-white border-r border-gray-200 shadow-sm w-64 h-[calc(100vh-4rem)] fixed left-0 top-16 z-40 overflow-y-auto transition-transform duration-200 ease-in-out
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        >
             <nav className="p-4 space-y-6">
                 {navigation.map((section) => {
                     const visibleItems = section.items.filter((item) => canSee(item.permission))
@@ -34,6 +44,7 @@ const Sidebar: React.FC = () => {
                                         <Link
                                             key={item.path}
                                             to={item.path}
+                                            onClick={onClose}
                                             className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${isActive(item.path)
                                                 ? 'bg-green-800 text-white shadow-md'
                                                 : 'text-gray-600 hover:bg-gray-100 hover:text-green-800'

@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { authBaseQuery } from '../../apiDomain/authBaseQuery'
 import type { ApiEnvelope } from '../../types/Types'
-import type { AuditLogEntry, ManagedUser, NewUserValues, ResetPasswordValues, RoleWithPermissions, UpdateUserValues } from './types'
+import type { AuditLogEntry, ManagedUser, NewUserValues, PermissionDef, ResetPasswordValues, RoleWithPermissions, UpdateUserValues } from './types'
 
 export const identityApi = createApi({
   reducerPath: 'identityApi',
@@ -50,6 +50,12 @@ export const identityApi = createApi({
       providesTags: ['Roles'],
     }),
 
+    getAllPermissions: builder.query<PermissionDef[], void>({
+      query: () => 'roles/permissions',
+      transformResponse: (response: ApiEnvelope<PermissionDef[]>) => response.data,
+      providesTags: ['Roles'],
+    }),
+
     getAuditLog: builder.query<AuditLogEntry[], { limit?: number } | void>({
       query: (args) => ({ url: 'audit-log', params: args?.limit ? { limit: args.limit } : {} }),
       transformResponse: (response: ApiEnvelope<AuditLogEntry[]>) => response.data,
@@ -66,5 +72,6 @@ export const {
   useAssignRoleMutation,
   useRemoveRoleMutation,
   useGetAllRolesQuery,
+  useGetAllPermissionsQuery,
   useGetAuditLogQuery,
 } = identityApi

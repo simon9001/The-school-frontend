@@ -6,7 +6,7 @@ import {
     Bell, UserSquare2, Briefcase, CalendarClock, FileSignature, Star,
     UserRoundCog, ClipboardList, Award, Home, HeartPulse, Bus,
     CalendarRange, Library, Trophy, FileCheck2, FileText, UserCheck,
-    UserCog, ShieldCheck,
+    UserCog, ShieldCheck, Activity, CalendarCheck2,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -31,7 +31,7 @@ export const navigation: NavSection[] = [
     {
         title: 'Overview',
         items: [
-            { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.view', built: true },
+            { name: 'Overview', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.view', built: true },
         ],
     },
     {
@@ -113,11 +113,16 @@ export const navigation: NavSection[] = [
             { name: 'Documents', path: '/dashboard/compliance/documents', icon: FileText, permission: 'documents.view' },
         ],
     },
+    // Everything a system_admin can actually act on, in the order they'd work
+    // through it: who has access, what that access means, the calendar those
+    // permissions post into, then the server and the trail of what changed.
     {
         title: 'Administration',
         items: [
             { name: 'Users', path: '/dashboard/admin/users', icon: UserCog, permission: 'users.manage', built: true },
-            { name: 'Roles', path: '/dashboard/admin/roles', icon: ShieldCheck, permission: 'roles.manage', built: true },
+            { name: 'Roles & Permissions', path: '/dashboard/admin/roles', icon: ShieldCheck, permission: 'roles.manage', built: true },
+            { name: 'Fiscal Periods', path: '/dashboard/admin/periods', icon: CalendarCheck2, permission: 'ledger.periods.manage', built: true },
+            { name: 'System Health', path: '/dashboard/admin/system', icon: Activity, permission: 'users.manage', built: true },
             { name: 'Audit Log', path: '/dashboard/admin/audit-log', icon: FileCheck2, permission: 'audit.view', built: true },
         ],
     },

@@ -30,6 +30,13 @@ export interface RoleWithPermissions {
   permissions: string[]
 }
 
+export interface PermissionDef {
+  id: number
+  code: string
+  module: string
+  description: string
+}
+
 export interface AuditLogEntry {
   entry: {
     id: number
