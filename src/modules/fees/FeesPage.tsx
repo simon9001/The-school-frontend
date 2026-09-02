@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm, useFieldArray, type SubmitHandler } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { HandCoins, Plus, X, SaveIcon, XCircle, Trash2, Banknote } from 'lucide-react'
+import { HandCoins, Plus, X, SaveIcon, XCircle, Trash2, Banknote, Search } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
 import { useCan } from '../../hooks/usePermissions'
@@ -346,6 +346,8 @@ const FeesPage: React.FC = () => {
     const [isStructureModalOpen, setIsStructureModalOpen] = useState(false)
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false)
     const [payingInvoice, setPayingInvoice] = useState<FeeInvoice | null>(null)
+    const [invoiceSearch, setInvoiceSearch] = useState('')
+    const [statusFilter, setStatusFilter] = useState<'all' | 'arrears' | 'open' | 'partially_paid' | 'paid' | 'cancelled'>('all')
 
     const { can } = useCan()
     const canManageStructures = can('fees.structure.manage')
@@ -363,6 +365,27 @@ const FeesPage: React.FC = () => {
         return s ? `${s.firstName} ${s.lastName}` : `#${id}`
     }
     const periodLabel = (id: number) => periods?.find((p) => p.id === id)?.name ?? `#${id}`
+
+    // "Arrears" is the Bursar's debtors list: anything still carrying a balance,
+    // regardless of whether it has been partly paid.
+    const visibleInvoices = (invoices ?? []).filter((inv) => {
+        const matchesStatus =
+            statusFilter === 'all' ? true :
+                statusFilter === 'arrears' ? inv.balance > 0 && inv.status !== 'cancelled' :
+                    inv.status === statusFilter
+
+        if (!matchesStatus) return false
+
+        const term = invoiceSearch.trim().toLowerCase()
+        if (!term) return true
+
+        const student = students?.find((s) => s.id === inv.studentId)
+        return (
+            inv.invoiceNo.toLowerCase().includes(term) ||
+            (student ? `${student.firstName} ${student.lastName}`.toLowerCase().includes(term) : false) ||
+            (student ? student.admissionNo.toLowerCase().includes(term) : false)
+        )
+    })
 
     return (
         <DashboardLayout>
@@ -433,12 +456,35 @@ const FeesPage: React.FC = () => {
             )}
 
             {tab === 'invoices' && (
-                invoicesLoading ? (
+                <>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4 flex flex-wrap items-end gap-4">
+                    <label className="relative block flex-1 min-w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                            className="input input-bordered w-full pl-10"
+                            placeholder="Search invoice no., student name or admission no."
+                            value={invoiceSearch}
+                            onChange={(e) => setInvoiceSearch(e.target.value)}
+                        />
+                    </label>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                        <select className="select select-bordered" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}>
+                            <option value="all">All</option>
+                            <option value="arrears">Arrears (owing)</option>
+                            <option value="open">Open</option>
+                            <option value="partially_paid">Partially paid</option>
+                            <option value="paid">Paid</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                {invoicesLoading ? (
                     <div className="flex justify-center items-center py-16"><span className="loading loading-spinner loading-lg text-green-800"></span></div>
                 ) : invoicesError ? (
                     <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"><XCircle className="mx-auto text-red-500 mb-3" size={40} /><p className="text-red-700">Unable to load invoices.</p></div>
-                ) : !invoices || invoices.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No invoices yet.</div>
+                ) : visibleInvoices.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No invoices match this filter.</div>
                 ) : (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                         <div className="overflow-x-auto scroll-fade-x">
@@ -449,17 +495,21 @@ const FeesPage: React.FC = () => {
                                         <th>Student</th>
                                         <th>Period</th>
                                         <th className="text-right">Total</th>
+                                        <th className="text-right">Balance</th>
                                         <th>Status</th>
                                         <th className="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {invoices.map((inv) => (
+                                    {visibleInvoices.map((inv) => (
                                         <tr key={inv.id} className="hover:bg-gray-50">
                                             <td className="font-mono text-sm">{inv.invoiceNo}</td>
                                             <td className="font-medium text-gray-800">{studentLabel(inv.studentId)}</td>
                                             <td>{periodLabel(inv.periodId)}</td>
                                             <td className="text-right font-mono">{formatMoney(inv.totalAmount)}</td>
+                                            <td className={`text-right font-mono ${inv.balance > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
+                                                {formatMoney(inv.balance)}
+                                            </td>
                                             <td><span className={`badge ${INVOICE_STATUS_BADGE[inv.status] ?? 'badge-ghost'} capitalize`}>{inv.status.replace('_', ' ')}</span></td>
                                             <td className="text-center">
                                                 {canReceipt && (inv.status === 'open' || inv.status === 'partially_paid') && (
@@ -474,7 +524,8 @@ const FeesPage: React.FC = () => {
                             </table>
                         </div>
                     </div>
-                )
+                )}
+                </>
             )}
 
             {tab === 'collections' && <CollectionsTab />}
