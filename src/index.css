@@ -11,6 +11,35 @@ body {
    (every wide table in the app on narrow screens). Shows a soft edge
    fade only on the side(s) that actually have more content to scroll to —
    no JS, driven entirely by background-attachment: local vs scroll. */
+/* Printing a receipt or statement should produce the document alone — not the
+   sidebar, navbar, and modal chrome around it. Everything is hidden by default
+   at print time; only the marked region and its descendants come back. */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .print-region,
+    .print-region * {
+        visibility: visible;
+    }
+
+    .print-region {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        border: none;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+
 .scroll-fade-x {
   background:
     linear-gradient(to right, white 30%, rgba(255, 255, 255, 0)) left,
