@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { Search, UserSquare2, AlertCircle, Banknote, SaveIcon, X } from 'lucide-react'
+import { Search, UserSquare2, AlertCircle, Banknote, SaveIcon, X, FileText } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
 import { useCan } from '../../hooks/usePermissions'
@@ -10,6 +10,7 @@ import { useGetAllStudentsQuery } from '../students/StudentApi'
 import { useGetAllAccountsQuery } from '../finance/AccountApi'
 import { useGetInvoicesByStudentQuery, useGetPaymentsByStudentQuery, useRecordPaymentMutation } from './FeesApi'
 import PrintableReceipt from './PrintableReceipt'
+import PrintableStatement from './PrintableStatement'
 import type { RootState } from '../../store/store'
 import type { Student } from '../students/types'
 import type { FeeInvoice, FeePayment, NewPaymentValues } from './types'
@@ -136,6 +137,7 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
     const { user } = useSelector((state: RootState) => state.authSlice)
     const [payingInvoice, setPayingInvoice] = useState<FeeInvoice | null>(null)
     const [issuedReceipt, setIssuedReceipt] = useState<FeePayment | null>(null)
+    const [showStatement, setShowStatement] = useState(false)
     const canReceipt = can('fees.receipt.create')
 
     if (invoicesLoading || paymentsLoading) {
@@ -164,6 +166,9 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
                         <div className="text-xs text-gray-500">
                             Billed {formatMoney(totalBilled)} · Paid {formatMoney(totalPaid)}
                         </div>
+                        <button onClick={() => setShowStatement(true)} className="btn btn-ghost btn-xs text-green-800 mt-2">
+                            <FileText size={14} /> Statement
+                        </button>
                     </div>
                 </div>
             </div>
@@ -261,6 +266,15 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
                     schoolName={schoolName}
                     receivedByName={user?.fullName ?? ''}
                     onClose={() => setIssuedReceipt(null)}
+                />
+            )}
+            {showStatement && (
+                <PrintableStatement
+                    student={student}
+                    invoices={invoices ?? []}
+                    payments={payments ?? []}
+                    schoolName={schoolName}
+                    onClose={() => setShowStatement(false)}
                 />
             )}
         </div>
