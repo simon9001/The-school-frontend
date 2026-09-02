@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { HandCoins, Plus, X, SaveIcon, XCircle, Trash2, Banknote } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import { useCan } from '../../hooks/usePermissions'
 import { useGetAllAccountsQuery } from '../finance/AccountApi'
 import { useGetAllFundsQuery } from '../finance/FundApi'
 import { useGetAllPeriodsQuery } from '../finance/PeriodApi'
@@ -345,6 +346,11 @@ const FeesPage: React.FC = () => {
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false)
     const [payingInvoice, setPayingInvoice] = useState<FeeInvoice | null>(null)
 
+    const { can } = useCan()
+    const canManageStructures = can('fees.structure.manage')
+    const canManageInvoices = can('fees.invoice.manage')
+    const canReceipt = can('fees.receipt.create')
+
     const { data: structures, isLoading: structuresLoading, isError: structuresError } = useGetAllStructuresQuery()
     const { data: invoices, isLoading: invoicesLoading, isError: invoicesError } = useGetAllInvoicesQuery()
     const { data: classes } = useGetAllClassesQuery()
@@ -368,11 +374,12 @@ const FeesPage: React.FC = () => {
                     </div>
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Fees</h1>
                 </div>
-                {tab === 'structures' ? (
+                {tab === 'structures' && canManageStructures && (
                     <button onClick={() => setIsStructureModalOpen(true)} className="btn bg-green-800 hover:bg-green-900 text-white flex items-center gap-2">
                         <Plus size={16} /> New Fee Structure
                     </button>
-                ) : (
+                )}
+                {tab === 'invoices' && canManageInvoices && (
                     <button onClick={() => setIsInvoiceModalOpen(true)} className="btn bg-green-800 hover:bg-green-900 text-white flex items-center gap-2">
                         <Plus size={16} /> New Invoice
                     </button>
@@ -381,7 +388,9 @@ const FeesPage: React.FC = () => {
 
             <div role="tablist" className="tabs tabs-boxed mb-4 w-fit">
                 <a role="tab" className={`tab ${tab === 'invoices' ? 'tab-active' : ''}`} onClick={() => setTab('invoices')}>Invoices</a>
-                <a role="tab" className={`tab ${tab === 'structures' ? 'tab-active' : ''}`} onClick={() => setTab('structures')}>Fee Structures</a>
+                {canManageStructures && (
+                    <a role="tab" className={`tab ${tab === 'structures' ? 'tab-active' : ''}`} onClick={() => setTab('structures')}>Fee Structures</a>
+                )}
             </div>
 
             {tab === 'structures' && (
@@ -451,7 +460,7 @@ const FeesPage: React.FC = () => {
                                             <td className="text-right font-mono">{formatMoney(inv.totalAmount)}</td>
                                             <td><span className={`badge ${INVOICE_STATUS_BADGE[inv.status] ?? 'badge-ghost'} capitalize`}>{inv.status.replace('_', ' ')}</span></td>
                                             <td className="text-center">
-                                                {(inv.status === 'open' || inv.status === 'partially_paid') && (
+                                                {canReceipt && (inv.status === 'open' || inv.status === 'partially_paid') && (
                                                     <button onClick={() => setPayingInvoice(inv)} className="btn btn-ghost btn-xs text-green-800" title="Record Payment">
                                                         <Banknote size={14} />
                                                     </button>
