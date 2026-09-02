@@ -10,6 +10,7 @@ import JournalEntriesPage from './modules/finance/JournalEntriesPage'
 import StudentsPage from './modules/students/StudentsPage'
 import AdmissionsPage from './modules/admissions/AdmissionsPage'
 import FeesPage from './modules/fees/FeesPage'
+import FeeCounterPage from './modules/fees/FeeCounterPage'
 import TeachersPage from './modules/teachers/TeachersPage'
 import SubjectsPage from './modules/subjects/SubjectsPage'
 import AttendancePage from './modules/attendance/AttendancePage'
@@ -64,6 +65,7 @@ function App() {
     { path: '/dashboard/students', element: <PrivateRoute requiredPermission="students.view"><StudentsPage /></PrivateRoute> },
     { path: '/dashboard/admissions', element: <PrivateRoute requiredPermission="admissions.view"><AdmissionsPage /></PrivateRoute> },
     { path: '/dashboard/finance/fees', element: <PrivateRoute requiredPermission="fees.view"><FeesPage /></PrivateRoute> },
+    { path: '/dashboard/finance/counter', element: <PrivateRoute requiredPermission="fees.receipt.create"><FeeCounterPage /></PrivateRoute> },
     { path: '/dashboard/academic/teachers', element: <PrivateRoute requiredPermission="teachers.view"><TeachersPage /></PrivateRoute> },
     { path: '/dashboard/academic/subjects', element: <PrivateRoute requiredPermission="subjects.view"><SubjectsPage /></PrivateRoute> },
     { path: '/dashboard/academic/attendance', element: <PrivateRoute requiredPermission="attendance.view"><AttendancePage /></PrivateRoute> },

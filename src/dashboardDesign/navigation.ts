@@ -44,6 +44,7 @@ export const navigation: NavSection[] = [
             { name: 'Trial Balance', path: '/dashboard/finance/trial-balance', icon: Scale, permission: 'ledger.journal.view', built: true },
             { name: 'Budgets', path: '/dashboard/finance/budgets', icon: Wallet, permission: 'budget.view', built: true },
             { name: 'Fees', path: '/dashboard/finance/fees', icon: HandCoins, permission: 'fees.view', built: true },
+            { name: 'Fee Counter', path: '/dashboard/finance/counter', icon: Banknote, permission: 'fees.receipt.create', built: true },
             { name: 'Grants / Capitation', path: '/dashboard/finance/grants', icon: PiggyBank, permission: 'grants.view', built: true },
             { name: 'Procurement', path: '/dashboard/finance/procurement', icon: ShoppingCart, permission: 'procurement.view', built: true },
             { name: 'Payroll', path: '/dashboard/finance/payroll', icon: Banknote, permission: 'payroll.view', built: true },
