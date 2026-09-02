@@ -51,6 +51,11 @@ export interface FeeInvoiceWithItems extends FeeInvoice {
   items: FeeInvoiceItem[]
 }
 
+export interface FeeInvoiceWithBalance extends FeeInvoice {
+  amountPaid: number
+  balance: number
+}
+
 export interface FeePayment {
   id: number
   receiptNo: string
@@ -62,6 +67,12 @@ export interface FeePayment {
   journalEntryId: number | null
   receivedBy: number
   createdAt: string
+}
+
+export type PaymentRangeQuery = {
+  from?: string
+  to?: string
+  method?: PaymentMethod
 }
 
 // ---- Create payloads ----

@@ -3,6 +3,7 @@ import { authBaseQuery } from '../../apiDomain/authBaseQuery'
 import type { ApiEnvelope } from '../../types/Types'
 import type {
   FeeInvoice,
+  FeeInvoiceWithBalance,
   FeeInvoiceWithItems,
   FeePayment,
   FeeStructure,
@@ -10,6 +11,7 @@ import type {
   NewFeeStructureValues,
   NewInvoiceValues,
   NewPaymentValues,
+  PaymentRangeQuery,
 } from './types'
 
 export const feesApi = createApi({
@@ -35,10 +37,12 @@ export const feesApi = createApi({
       invalidatesTags: ['FeeStructures'],
     }),
 
-    getAllInvoices: builder.query<FeeInvoice[], void>({
+    getAllInvoices: builder.query<FeeInvoiceWithBalance[], void>({
       query: () => 'fees/invoices',
-      transformResponse: (response: ApiEnvelope<FeeInvoice[]>) => response.data,
-      providesTags: ['FeeInvoices'],
+      transformResponse: (response: ApiEnvelope<FeeInvoiceWithBalance[]>) => response.data,
+      // FeePayments too: recording a payment must refresh the balance column,
+      // and recordPayment already invalidates that tag.
+      providesTags: ['FeeInvoices', 'FeePayments'],
     }),
 
     getInvoiceById: builder.query<FeeInvoiceWithItems, number>({
@@ -70,6 +74,19 @@ export const feesApi = createApi({
       transformResponse: (response: ApiEnvelope<FeePayment[]>) => response.data,
       providesTags: ['FeePayments'],
     }),
+
+    getPaymentsInRange: builder.query<FeePayment[], PaymentRangeQuery>({
+      query: ({ from, to, method }) => {
+        const params = new URLSearchParams()
+        if (from) params.set('from', from)
+        if (to) params.set('to', to)
+        if (method) params.set('method', method)
+        const qs = params.toString()
+        return qs ? `fees/payments?${qs}` : 'fees/payments'
+      },
+      transformResponse: (response: ApiEnvelope<FeePayment[]>) => response.data,
+      providesTags: ['FeePayments'],
+    }),
   }),
 })
 
@@ -83,4 +100,5 @@ export const {
   useCreateInvoiceMutation,
   useRecordPaymentMutation,
   useGetPaymentsByStudentQuery,
+  useGetPaymentsInRangeQuery,
 } = feesApi
