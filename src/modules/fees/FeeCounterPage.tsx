@@ -1,10 +1,18 @@
 import React, { useState } from 'react'
-import { Search, UserSquare2, AlertCircle } from 'lucide-react'
-import { Toaster } from 'sonner'
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useSelector } from 'react-redux'
+import { Search, UserSquare2, AlertCircle, Banknote, SaveIcon, X } from 'lucide-react'
+import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import { useCan } from '../../hooks/usePermissions'
+import { schoolName } from '../../config/school'
 import { useGetAllStudentsQuery } from '../students/StudentApi'
-import { useGetInvoicesByStudentQuery, useGetPaymentsByStudentQuery } from './FeesApi'
+import { useGetAllAccountsQuery } from '../finance/AccountApi'
+import { useGetInvoicesByStudentQuery, useGetPaymentsByStudentQuery, useRecordPaymentMutation } from './FeesApi'
+import PrintableReceipt from './PrintableReceipt'
+import type { RootState } from '../../store/store'
 import type { Student } from '../students/types'
+import type { FeeInvoice, FeePayment, NewPaymentValues } from './types'
 
 const formatMoney = (amount: string | number) =>
     Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -16,11 +24,119 @@ const INVOICE_STATUS_BADGE: Record<string, string> = {
     cancelled: 'badge-ghost',
 }
 
+const blank = <T extends string | undefined>(v: T) => (v ? v : undefined)
+
+// ---- Receipt payment modal ----
+
+const CounterPaymentModal: React.FC<{
+    invoice: FeeInvoice
+    onClose: () => void
+    onRecorded: (payment: FeePayment) => void
+}> = ({ invoice, onClose, onRecorded }) => {
+    const { user } = useSelector((state: RootState) => state.authSlice)
+    const { data: accounts } = useGetAllAccountsQuery()
+    const assetAccounts = accounts?.filter((a) => a.type === 'asset')
+
+    const [recordPayment] = useRecordPaymentMutation()
+    const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<NewPaymentValues>({
+        defaultValues: { paymentDate: new Date().toISOString().slice(0, 10), periodId: invoice.periodId },
+    })
+    const method = watch('paymentMethod')
+
+    const onSubmit: SubmitHandler<NewPaymentValues> = async (formValues) => {
+        const loadingToastId = toast.loading('Recording payment...')
+        try {
+            const payment = await recordPayment({
+                studentId: invoice.studentId,
+                invoiceId: invoice.id,
+                paymentDate: formValues.paymentDate,
+                amount: Number(formValues.amount),
+                paymentMethod: formValues.paymentMethod,
+                referenceNo: blank(formValues.referenceNo),
+                cashAccountId: Number(formValues.cashAccountId),
+                debtorsAccountId: Number(formValues.debtorsAccountId),
+                periodId: Number(formValues.periodId),
+                receivedBy: user!.id,
+            }).unwrap()
+            toast.success(`Receipt ${payment.receiptNo} recorded`, { id: loadingToastId })
+            onRecorded(payment)
+        } catch (err) {
+            const message = (err as { data?: { error?: string } })?.data?.error ?? 'Failed to record payment'
+            toast.error(message, { id: loadingToastId })
+        }
+    }
+
+    return (
+        <div className="modal modal-open">
+            <div className="modal-box max-w-xl">
+                <h2 className="text-xl font-bold text-green-800 mb-1">Receipt Payment</h2>
+                <p className="text-sm text-gray-500 mb-4">
+                    Invoice {invoice.invoiceNo} — total {formatMoney(invoice.totalAmount)}
+                </p>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Amount</label>
+                            <input type="number" step="0.01" autoFocus className="input input-bordered w-full" {...register('amount', { required: 'Amount is required' })} />
+                            {errors.amount && <p className="text-red-500 text-sm">{errors.amount.message}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Payment Date</label>
+                            <input type="date" className="input input-bordered w-full" {...register('paymentDate', { required: true })} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Method</label>
+                            <select className="select select-bordered w-full" {...register('paymentMethod', { required: true })}>
+                                <option value="cash">Cash</option>
+                                <option value="bank">Bank</option>
+                                <option value="mpesa">M-Pesa</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">{method === 'mpesa' ? 'M-Pesa Code' : 'Reference No.'}</label>
+                            <input className="input input-bordered w-full" {...register('referenceNo')} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Cash/Bank Account</label>
+                            <select className="select select-bordered w-full" {...register('cashAccountId', { required: true })}>
+                                <option value="">Select account</option>
+                                {assetAccounts?.map((a) => <option key={a.id} value={a.id}>{a.code} — {a.name}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Debtors Account</label>
+                            <select className="select select-bordered w-full" {...register('debtorsAccountId', { required: true })}>
+                                <option value="">Select account</option>
+                                {assetAccounts?.map((a) => <option key={a.id} value={a.id}>{a.code} — {a.name}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <button type="button" onClick={onClose} className="btn btn-ghost">
+                            <X size={16} /> Cancel
+                        </button>
+                        <button type="submit" disabled={isSubmitting} className="btn bg-green-800 hover:bg-green-900 text-white">
+                            <SaveIcon size={16} /> Receipt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
+}
+
 // ---- Student fee card ----
 
 const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
     const { data: invoices, isLoading: invoicesLoading } = useGetInvoicesByStudentQuery(student.id)
     const { data: payments, isLoading: paymentsLoading } = useGetPaymentsByStudentQuery(student.id)
+
+    const { can } = useCan()
+    const { user } = useSelector((state: RootState) => state.authSlice)
+    const [payingInvoice, setPayingInvoice] = useState<FeeInvoice | null>(null)
+    const [issuedReceipt, setIssuedReceipt] = useState<FeePayment | null>(null)
+    const canReceipt = can('fees.receipt.create')
 
     if (invoicesLoading || paymentsLoading) {
         return <div className="flex justify-center py-12"><span className="loading loading-spinner loading-lg text-green-800"></span></div>
@@ -74,6 +190,7 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
                                     <th>Date</th>
                                     <th className="text-right">Total</th>
                                     <th>Status</th>
+                                    <th className="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -83,6 +200,13 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
                                         <td>{inv.invoiceDate}</td>
                                         <td className="text-right font-mono">{formatMoney(inv.totalAmount)}</td>
                                         <td><span className={`badge ${INVOICE_STATUS_BADGE[inv.status] ?? 'badge-ghost'} capitalize`}>{inv.status.replace('_', ' ')}</span></td>
+                                        <td className="text-center">
+                                            {canReceipt && (inv.status === 'open' || inv.status === 'partially_paid') && (
+                                                <button onClick={() => setPayingInvoice(inv)} className="btn btn-ghost btn-xs text-green-800" title="Receipt Payment">
+                                                    <Banknote size={14} />
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -122,6 +246,23 @@ const StudentFeeCard: React.FC<{ student: Student }> = ({ student }) => {
                     </div>
                 )}
             </div>
+
+            {payingInvoice && (
+                <CounterPaymentModal
+                    invoice={payingInvoice}
+                    onClose={() => setPayingInvoice(null)}
+                    onRecorded={(payment) => { setPayingInvoice(null); setIssuedReceipt(payment) }}
+                />
+            )}
+            {issuedReceipt && (
+                <PrintableReceipt
+                    payment={issuedReceipt}
+                    student={student}
+                    schoolName={schoolName}
+                    receivedByName={user?.fullName ?? ''}
+                    onClose={() => setIssuedReceipt(null)}
+                />
+            )}
         </div>
     )
 }
