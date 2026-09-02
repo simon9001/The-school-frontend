@@ -17,6 +17,7 @@ import {
     useCreateInvoiceMutation,
     useRecordPaymentMutation,
 } from './FeesApi'
+import CollectionsTab from './CollectionsTab'
 import type { FeeInvoice, NewFeeStructureValues, NewInvoiceValues, NewPaymentValues } from './types'
 
 const INVOICE_STATUS_BADGE: Record<string, string> = {
@@ -341,7 +342,7 @@ const RecordPaymentModal: React.FC<{ invoice: FeeInvoice; onClose: () => void }>
 // ---- Page ----
 
 const FeesPage: React.FC = () => {
-    const [tab, setTab] = useState<'structures' | 'invoices'>('invoices')
+    const [tab, setTab] = useState<'structures' | 'invoices' | 'collections'>('invoices')
     const [isStructureModalOpen, setIsStructureModalOpen] = useState(false)
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false)
     const [payingInvoice, setPayingInvoice] = useState<FeeInvoice | null>(null)
@@ -388,6 +389,7 @@ const FeesPage: React.FC = () => {
 
             <div role="tablist" className="tabs tabs-boxed mb-4 w-fit">
                 <a role="tab" className={`tab ${tab === 'invoices' ? 'tab-active' : ''}`} onClick={() => setTab('invoices')}>Invoices</a>
+                <a role="tab" className={`tab ${tab === 'collections' ? 'tab-active' : ''}`} onClick={() => setTab('collections')}>Collections</a>
                 {canManageStructures && (
                     <a role="tab" className={`tab ${tab === 'structures' ? 'tab-active' : ''}`} onClick={() => setTab('structures')}>Fee Structures</a>
                 )}
@@ -474,6 +476,8 @@ const FeesPage: React.FC = () => {
                     </div>
                 )
             )}
+
+            {tab === 'collections' && <CollectionsTab />}
 
             {isStructureModalOpen && <NewStructureModal onClose={() => setIsStructureModalOpen(false)} />}
             {isInvoiceModalOpen && <NewInvoiceModal onClose={() => setIsInvoiceModalOpen(false)} />}
