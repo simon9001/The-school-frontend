@@ -212,7 +212,7 @@ const ItemDetailModal: React.FC<{ itemId: number; itemName: string; canManage: b
                 ) : !movements || movements.length === 0 ? (
                     <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">No movements recorded yet.</div>
                 ) : (
-                    <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                    <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg">
                         <table className="table table-sm w-full">
                             <thead>
                                 <tr className="bg-gray-50"><th>Date</th><th>Type</th><th className="text-right">Qty</th><th className="text-right">Unit Cost</th><th>Reference</th></tr>
@@ -276,7 +276,7 @@ const InventoryPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No inventory items yet.</div>
             ) : (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50">

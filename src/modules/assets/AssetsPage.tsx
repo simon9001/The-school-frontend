@@ -436,7 +436,7 @@ const AssetsPage: React.FC = () => {
                     <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No assets recorded yet.</div>
                 ) : (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto scroll-fade-x">
                             <table className="table table-zebra w-full">
                                 <thead>
                                     <tr className="bg-gray-50">
@@ -481,7 +481,7 @@ const AssetsPage: React.FC = () => {
                     <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No categories yet.</div>
                 ) : (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto scroll-fade-x">
                             <table className="table table-zebra w-full">
                                 <thead>
                                     <tr className="bg-gray-50">

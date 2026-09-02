@@ -38,6 +38,7 @@ export interface RbacDrift {
   missingRolePermissions: { roleCode: string; permissionCode: string }[]
   orphanPermissions: string[]
   orphanRoles: string[]
+  orphanRolePermissions: { roleCode: string; permissionCode: string }[]
   inSync: boolean
 }
 

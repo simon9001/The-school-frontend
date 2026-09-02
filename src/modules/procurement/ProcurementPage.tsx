@@ -232,7 +232,7 @@ const RequisitionDetailModal: React.FC<{ id: number; canApprove: boolean; onClos
                             <div><h2 className="text-xl font-bold text-green-800">{req.requisitionNo}</h2><p className="text-sm text-gray-500">{req.department ?? 'No department'} — {req.requestDate}</p></div>
                             <span className={`badge ${REQ_BADGE[req.status]} capitalize`}>{req.status.replace('_', ' ')}</span>
                         </div>
-                        <div className="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+                        <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg mb-4">
                             <table className="table table-sm w-full">
                                 <thead><tr className="bg-gray-50"><th>Description</th><th>Account</th><th className="text-right">Qty</th><th className="text-right">Est. Cost</th></tr></thead>
                                 <tbody>
@@ -391,7 +391,7 @@ const PurchaseOrderDetailModal: React.FC<{ id: number; onClose: () => void }> = 
                             <div><h2 className="text-xl font-bold text-green-800">{po.lpoNo}</h2><p className="text-sm text-gray-500">{suppliers?.find((s) => s.id === po.supplierId)?.name} — {po.orderDate}</p></div>
                             <span className={`badge ${PO_BADGE[po.status]} capitalize`}>{po.status.replace('_', ' ')}</span>
                         </div>
-                        <div className="overflow-x-auto border border-gray-200 rounded-lg my-4">
+                        <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg my-4">
                             <table className="table table-sm w-full">
                                 <thead><tr className="bg-gray-50"><th>Description</th><th>Account</th><th className="text-right">Qty</th><th className="text-right">Unit Cost</th></tr></thead>
                                 <tbody>

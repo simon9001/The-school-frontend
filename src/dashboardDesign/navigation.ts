@@ -6,7 +6,7 @@ import {
     Bell, UserSquare2, Briefcase, CalendarClock, FileSignature, Star,
     UserRoundCog, ClipboardList, Award, Home, HeartPulse, Bus,
     CalendarRange, Library, Trophy, FileCheck2, FileText, UserCheck,
-    UserCog, ShieldCheck, Activity, CalendarCheck2,
+    UserCog, ShieldCheck, Activity, CalendarCheck2, User,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -32,6 +32,7 @@ export const navigation: NavSection[] = [
         title: 'Overview',
         items: [
             { name: 'Overview', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.view', built: true },
+            { name: 'My Profile', path: '/dashboard/profile', icon: User, built: true },
         ],
     },
     {

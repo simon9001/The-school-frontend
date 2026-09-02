@@ -196,7 +196,7 @@ const DetailModal: React.FC<{ budgetId: number; canManage: boolean; canApprove: 
 
                         {tab === 'lines' ? (
                             <>
-                                <div className="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+                                <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg mb-4">
                                     <table className="table table-sm w-full">
                                         <thead>
                                             <tr className="bg-gray-50"><th>Account</th><th>Fund</th><th>Scope</th><th className="text-right">Amount</th></tr>
@@ -238,7 +238,7 @@ const DetailModal: React.FC<{ budgetId: number; canManage: boolean; canApprove: 
                         ) : !vsActual || vsActual.length === 0 ? (
                             <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">No lines to report on.</div>
                         ) : (
-                            <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                            <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg">
                                 <table className="table table-sm w-full">
                                     <thead>
                                         <tr className="bg-gray-50"><th>Account</th><th>Fund</th><th className="text-right">Budgeted</th><th className="text-right">Actual</th><th className="text-right">Variance</th></tr>
@@ -305,7 +305,7 @@ const BudgetsPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No budgets yet.</div>
             ) : (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50">

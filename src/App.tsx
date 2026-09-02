@@ -27,6 +27,9 @@ import FiscalPeriodsPage from './modules/finance/FiscalPeriodsPage'
 import SystemHealthPage from './modules/system/SystemHealthPage'
 import PrivateRoute from './components/auth/PrivateRoute'
 import PublicRoute from './components/auth/PublicRoute'
+import InactivityTimer from './components/auth/InactivityTimer'
+import RealtimeSync from './components/auth/RealtimeSync'
+import ProfilePage from './modules/profile/ProfilePage'
 import { navigation } from './dashboardDesign/navigation'
 
 function App() {
@@ -51,6 +54,7 @@ function App() {
     { path: '/login', element: <PublicRoute><Login /></PublicRoute> },
 
     { path: '/access-denied', element: <PrivateRoute><AccessDenied /></PrivateRoute> },
+    { path: '/dashboard/profile', element: <PrivateRoute><ProfilePage /></PrivateRoute> },
 
     { path: '/dashboard', element: <PrivateRoute requiredPermission="dashboard.view"><Dashboard /></PrivateRoute> },
     { path: '/dashboard/finance/accounts', element: <PrivateRoute requiredPermission="ledger.journal.view"><AccountsPage /></PrivateRoute> },
@@ -79,7 +83,13 @@ function App() {
     ...placeholderRoutes,
   ])
 
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <InactivityTimer timeoutMinutes={15} />
+      <RealtimeSync />
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default App

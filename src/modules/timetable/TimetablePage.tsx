@@ -219,7 +219,7 @@ const ClassTimetablePanel: React.FC = () => {
                 <div className="flex justify-center items-center py-16"><span className="loading loading-spinner loading-lg text-green-800"></span></div>
             ) : (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table w-full">
                             <thead>
                                 <tr className="bg-gray-50">

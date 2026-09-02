@@ -24,7 +24,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredPermissio
     // Deliberately NOT '/dashboard' — that route itself requires
     // 'dashboard.view', so a role without it (e.g. a future non-staff
     // portal role) would infinite-loop redirecting back here.
-    if (requiredPermission && !user.permissions.includes(requiredPermission)) {
+    const permissions = user.permissions ?? []
+    if (requiredPermission && !permissions.includes(requiredPermission)) {
         return <Navigate to="/access-denied" replace />
     }
 

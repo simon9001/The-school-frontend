@@ -291,7 +291,7 @@ const RunDetailModal: React.FC<{ runId: number; canProcess: boolean; onClose: ()
                         </div>
 
                         {run.payslips.length > 0 && (
-                            <div className="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+                            <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg mb-4">
                                 <table className="table table-sm w-full">
                                     <thead><tr className="bg-gray-50"><th>Employee</th><th className="text-right">Gross</th><th className="text-right">PAYE</th><th className="text-right">NSSF</th><th className="text-right">SHIF</th><th className="text-right">Net Pay</th></tr></thead>
                                     <tbody>

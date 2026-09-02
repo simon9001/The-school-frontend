@@ -88,7 +88,7 @@ const RolesPage: React.FC = () => {
                 <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"><XCircle className="mx-auto text-red-500 mb-3" size={40} /><p className="text-red-700">Unable to load roles.</p></div>
             ) : tab === 'roles' ? (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50">
@@ -147,7 +147,7 @@ const RolesPage: React.FC = () => {
                                     <span className="text-sm font-semibold text-gray-600 capitalize">{module.replace(/_/g, ' ')}</span>
                                     <span className="text-xs text-gray-400">{items.length} permission(s)</span>
                                 </div>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto scroll-fade-x">
                                     <table className="table table-sm w-full">
                                         <tbody>
                                             {items.map((p) => {

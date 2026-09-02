@@ -6,7 +6,7 @@ import type { JournalEntry, JournalEntryWithLines, NewJournalEntryValues, TrialB
 export const journalApi = createApi({
   reducerPath: 'journalApi',
   baseQuery: authBaseQuery,
-  tagTypes: ['JournalEntries'],
+  tagTypes: ['JournalEntries', 'TrialBalance'],
   endpoints: (builder) => ({
     getTrialBalance: builder.query<TrialBalanceResult, { asOfDate: string; fundId?: number }>({
       query: ({ asOfDate, fundId }) => ({
@@ -14,6 +14,7 @@ export const journalApi = createApi({
         params: { asOfDate, ...(fundId ? { fundId } : {}) },
       }),
       transformResponse: (response: ApiEnvelope<TrialBalanceResult>) => response.data,
+      providesTags: ['TrialBalance'],
     }),
 
     getAllJournalEntries: builder.query<JournalEntry[], void>({
@@ -37,7 +38,7 @@ export const journalApi = createApi({
     approveJournalEntry: builder.mutation<JournalEntry, { id: number; approverId: number }>({
       query: ({ id, approverId }) => ({ url: `journal-entries/${id}/approve`, method: 'POST', body: { approverId } }),
       transformResponse: (response: ApiEnvelope<JournalEntry>) => response.data,
-      invalidatesTags: ['JournalEntries'],
+      invalidatesTags: ['JournalEntries', 'TrialBalance'],
     }),
 
     rejectJournalEntry: builder.mutation<JournalEntry, { id: number; approverId: number; reason: string }>({

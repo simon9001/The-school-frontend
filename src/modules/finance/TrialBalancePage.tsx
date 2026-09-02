@@ -66,7 +66,7 @@ const TrialBalancePage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto scroll-fade-x">
                                 <table className="table table-zebra w-full">
                                     <thead>
                                         <tr className="bg-gray-50">

@@ -6,3 +6,19 @@
 body {
   margin: 0;
 }
+
+/* Pure-CSS "scroll shadow" affordance for horizontally-scrollable tables
+   (every wide table in the app on narrow screens). Shows a soft edge
+   fade only on the side(s) that actually have more content to scroll to —
+   no JS, driven entirely by background-attachment: local vs scroll. */
+.scroll-fade-x {
+  background:
+    linear-gradient(to right, white 30%, rgba(255, 255, 255, 0)) left,
+    linear-gradient(to left, white 30%, rgba(255, 255, 255, 0)) right,
+    linear-gradient(to right, rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0) 10px) left,
+    linear-gradient(to left, rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0) 10px) right;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+}

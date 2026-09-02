@@ -105,7 +105,7 @@ const HealthTab: React.FC = () => {
                 {flaggedAccounts.length === 0 ? (
                     <AllClear>Every account is active, assigned a role, and has been signed into.</AllClear>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50"><th>Name</th><th>Email</th><th>Issue</th><th>Detail</th></tr>
@@ -198,6 +198,26 @@ const RbacTab: React.FC = () => {
                                 </div>
                             </div>
                         )}
+                        {drift.orphanRolePermissions.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 text-sm font-medium text-red-600 mb-1">
+                                    <AlertTriangle size={14} /> {drift.orphanRolePermissions.length} grant(s) the database still makes but rbac.ts does not
+                                </div>
+                                <p className="text-xs text-gray-500 mb-1">
+                                    Access narrowed in code but never revoked in the database — these users still hold the permission.
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {drift.orphanRolePermissions.slice(0, 30).map((p) => (
+                                        <span key={`${p.roleCode}-${p.permissionCode}`} className="badge badge-outline badge-sm font-mono">
+                                            {p.roleCode} → {p.permissionCode}
+                                        </span>
+                                    ))}
+                                    {drift.orphanRolePermissions.length > 30 && (
+                                        <span className="text-xs text-gray-500 self-center">+{drift.orphanRolePermissions.length - 30} more</span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                         {(drift.orphanPermissions.length > 0 || drift.orphanRoles.length > 0) && (
                             <div>
                                 <div className="flex items-center gap-2 text-sm font-medium text-amber-700 mb-1">
@@ -222,7 +242,7 @@ const RbacTab: React.FC = () => {
                 {conflicts.length === 0 ? (
                     <AllClear>No user holds both sides of a maker-checker pair.</AllClear>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50"><th>User</th><th>Email</th><th>Conflict</th><th>Permissions</th></tr>
@@ -253,7 +273,7 @@ const RbacTab: React.FC = () => {
             </Panel>
 
             <Panel title="Role Assignment">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scroll-fade-x">
                     <table className="table table-zebra w-full">
                         <thead>
                             <tr className="bg-gray-50"><th>Role</th><th>Code</th><th className="text-right">Users</th></tr>

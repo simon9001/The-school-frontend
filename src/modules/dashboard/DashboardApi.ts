@@ -6,6 +6,7 @@ import type { DashboardSummary } from './types'
 export const dashboardApi = createApi({
   reducerPath: 'dashboardApi',
   baseQuery: authBaseQuery,
+  tagTypes: ['DashboardSummary'],
   endpoints: (builder) => ({
     getDashboardSummary: builder.query<DashboardSummary, { asOfDate?: string } | void>({
       query: (args) => ({
@@ -13,6 +14,7 @@ export const dashboardApi = createApi({
         params: args?.asOfDate ? { asOfDate: args.asOfDate } : {},
       }),
       transformResponse: (response: ApiEnvelope<DashboardSummary>) => response.data,
+      providesTags: ['DashboardSummary'],
     }),
   }),
 })

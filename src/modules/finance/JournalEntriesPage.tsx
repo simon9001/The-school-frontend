@@ -202,7 +202,7 @@ const DetailModal: React.FC<{ entryId: number; canApprove: boolean; onClose: () 
                         <p className="text-sm text-gray-600 mb-1">{entry.description}</p>
                         <p className="text-xs text-gray-400 mb-4">{entry.entryDate} — source: {entry.sourceModule}{entry.sourceReference ? ` (${entry.sourceReference})` : ''}</p>
 
-                        <div className="overflow-x-auto border border-gray-200 rounded-lg mb-4">
+                        <div className="overflow-x-auto scroll-fade-x border border-gray-200 rounded-lg mb-4">
                             <table className="table table-sm w-full">
                                 <thead>
                                     <tr className="bg-gray-50"><th>Account</th><th>Fund</th><th>Description</th><th className="text-right">Debit</th><th className="text-right">Credit</th></tr>
@@ -300,7 +300,7 @@ const JournalEntriesPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No journal entries yet.</div>
             ) : (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scroll-fade-x">
                         <table className="table table-zebra w-full">
                             <thead>
                                 <tr className="bg-gray-50">
