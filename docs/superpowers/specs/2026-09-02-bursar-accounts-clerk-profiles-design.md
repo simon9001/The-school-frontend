@@ -112,6 +112,15 @@ and present on the frontend type; it is never displayed. After a payment is
 recorded, show a receipt with receipt number, student, amount, method, reference,
 date and receiving officer, printable via a dedicated print stylesheet.
 
+**School name.** Receipts and statements carry the school's own name as their
+letterhead. It is configured in the frontend's `.env` as `VITE_SCHOOL_NAME`,
+not served by the API: a printed receipt must never wait on a network call for
+its letterhead, and a failed request would otherwise hand a parent a receipt
+with no school name on it. Changing the name requires a frontend rebuild, which
+is acceptable for a value that changes almost never. This introduces the
+frontend's first `.env`, so `.gitignore` must be corrected at the same time — it
+currently ignores `*.local` but not `.env`.
+
 **Printable fee statement.** The same student fee card in a print layout —
 invoices, payments and closing balance for the period.
 
