@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import CapabilityCard from './CapabilityCard'
 import type { RootState, AppDispatch } from '../../store/store'
 import {
   useMeQuery,
@@ -340,6 +341,8 @@ export const ProfilePage: React.FC = () => {
                 </div>
               </form>
             </div>
+
+            <CapabilityCard permissions={activeUser?.permissionDetails ?? []} />
           </div>
 
           {/* Right Column: Account Stats & Password Security */}

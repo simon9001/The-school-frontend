@@ -3,6 +3,12 @@ export type LoginFormValues = {
   password: string
 }
 
+export interface PermissionDetail {
+  code: string
+  module: string
+  description: string
+}
+
 export interface AuthenticatedUser {
   id: number
   email: string
@@ -14,6 +20,11 @@ export interface AuthenticatedUser {
   createdAt?: string | null
   roles: string[]
   permissions: string[]
+  /** Same grants as `permissions`, with the module and human-readable
+   *  description each code carries in the backend's RBAC catalogue.
+   *  Optional because a token issued before this field existed will not
+   *  have it. */
+  permissionDetails?: PermissionDetail[]
 }
 
 export interface LoginResult {
