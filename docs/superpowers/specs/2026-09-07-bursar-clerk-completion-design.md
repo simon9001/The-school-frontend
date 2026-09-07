@@ -259,9 +259,12 @@ its value as the 1:1 map of the RBAC catalogue to the UI, and flipping
 - After sections 3 and 4, every link in the Bursar's sidebar leads to a working
   page.
 - The Principal loses the Notifications link too — the nav config is shared.
-- `notifications.send` remains a granted-but-unsurfaced permission for the Bursar
-  and Principal. The backend's 5 notification routes are real, so the permission
-  is not being removed; only the dead link is.
+- `notifications.send` is hidden only until it is built. Bulk SMS and email to
+  parents is a confirmed requirement with its own spec (see section 8, item D);
+  when that work sets `built: true` on the Notifications entry, the link returns
+  automatically. Nothing about the permission or its 5 backend routes changes
+  here. This is the reason `navigation.ts` keeps its unbuilt entries rather than
+  having them deleted — a hidden link is one flag away from shipping.
 - The comment at the top of `navigation.ts` claiming every permission has a home
   in the UI must be corrected to describe what is now true.
 
@@ -315,3 +318,63 @@ Manual frontend verification, per role, using the seeded demo users
 
 Steps 1-3 are independent of each other. Steps 4 and 5 are independent of
 everything before them.
+
+---
+
+## 8. Related work: what comes after this spec
+
+Five further requirements were raised on 2026-09-07. They are recorded here so
+this spec is not read as the whole picture, and so section 5's treatment of the
+Notifications link makes sense. Each gets its own spec; none is in scope here.
+
+| | Piece | Size | Blocked on |
+|---|---|---|---|
+| A | Student data exposure fix | Small | Nothing |
+| B | Approvals inbox for the Principal | Medium | Nothing |
+| C | Parent dashboard | Medium | Nothing |
+| D | Bulk SMS & email to parents | Medium | Gateway credentials |
+| E | Teacher sees only their own students | Large | Schema + auth model change |
+
+Order: A, B, C, D, then E. A-D are independent of each other; E goes last
+because it changes how authorization works and would otherwise have to be
+retrofitted into each of the others.
+
+**A. Student data exposure.** `VIEW_ONLY` is computed as every permission ending
+in `.view`, and `students.view` ends in `.view` — so `bom_member`,
+`internal_auditor`, `external_auditor` and `system_admin` are all handed full
+student records, including dates of birth, NEMIS UPI numbers and guardian
+contacts. The fix follows the pattern already established for
+`counseling.access` and `health.access`, both of which are deliberately not
+named `.view` precisely to escape this sweep. Smallest item on the list and a
+live privacy problem, so it goes first.
+
+**B. Approvals inbox.** Approve endpoints already exist for journals, budgets,
+requisitions, payments and leave, and `dashboard.widgets.ts` already surfaces
+pending items to whoever holds the matching approve permission. What is missing
+is one consolidated inbox for the Principal rather than five scattered pages.
+Largely assembly of what exists.
+
+**C. Parent dashboard.** `portal.routes.ts` already serves children, fee
+statement, report card, attendance and notices, each protected by `requireSelf`
+against the IDOR its comment describes, and `guardian_students` links parent
+users to students. Frontend-only, but it needs its own layout — the current
+sidebar is staff-shaped and a parent should not see it.
+
+**D. Bulk SMS & email.** The backend has templates, `renderTemplate`, delivery
+status tracking and a clean `NotificationProvider` interface, but
+`sendNotificationSchema` accepts one recipient per call and the only provider is
+`consoleNotificationProvider`, which logs and sends nothing. Needs a bulk/
+recipient-group path ("all Form 2 parents", "all parents in arrears") and a real
+adapter. **Decided: Africa's Talking for SMS, plain SMTP for email**, both behind
+the existing provider interface so the console stub stays the dev default.
+Requires an API key, a registered sender ID, rate limiting, and awareness that a
+broadcast to 800 parents is a real cost at roughly KES 0.8-1.0 per message.
+
+**E. Teacher data scoping.** `teacher_assignments` (teacher, subject, class,
+stream, period) is the data path, but two things block it. There is no link from
+a logged-in user to their teacher record — `teachers` has no `userId` and neither
+does `staff` — so a schema change comes first. And `requirePermission(code)`
+answers "may you do this action", not "which rows may you see"; row-level
+filtering is a new authorization dimension affecting every student-touching
+endpoint. `user_roles.scopeType`/`scopeId` is documented in `09-rbac.md` as an
+unused extension point intended for exactly this.
