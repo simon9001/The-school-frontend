@@ -79,8 +79,10 @@ export const GlobalSearchBar: React.FC = () => {
 
     for (const section of navigation) {
       for (const item of section.items) {
-        // User must have permission for this page
-        if (!item.permission || permissions.includes(item.permission)) {
+        // Same rule as the sidebar: the user needs the permission, and the
+        // page has to exist. Without the `built` check, search would keep
+        // offering pages the sidebar no longer lists.
+        if (item.built && (!item.permission || permissions.includes(item.permission))) {
           if (
             item.name.toLowerCase().includes(q) ||
             section.title.toLowerCase().includes(q) ||

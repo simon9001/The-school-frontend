@@ -29,7 +29,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         >
             <nav className="p-4 space-y-6">
                 {navigation.map((section) => {
-                    const visibleItems = section.items.filter((item) => canSee(item.permission))
+                    // `built` gates alongside the permission: an item whose page
+                    // does not exist yet is not a link worth offering. Its route
+                    // still resolves to a placeholder if someone has the URL.
+                    const visibleItems = section.items.filter((item) => item.built && canSee(item.permission))
                     if (visibleItems.length === 0) return null
 
                     return (

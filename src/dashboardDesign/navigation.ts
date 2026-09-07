@@ -24,9 +24,13 @@ export interface NavSection {
     items: NavItem[]
 }
 
-// Mirrors the backend's module grouping 1:1 (see project-documentation/09-rbac.md)
-// so every permission the RBAC system defines has a home in the UI, even
-// before the page behind it is built.
+// Mirrors the backend's module grouping 1:1 (see project-documentation/09-rbac.md),
+// so this file is the map of the RBAC catalogue onto the UI — including entries
+// whose page does not exist yet.
+//
+// Only entries with `built: true` are rendered, by the sidebar and by global
+// search alike. An unbuilt entry is a placeholder for work not yet done, not a
+// link: shipping its page means writing the page and flipping that one flag.
 export const navigation: NavSection[] = [
     {
         title: 'Overview',
