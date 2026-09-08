@@ -63,6 +63,18 @@ export const ProfilePage: React.FC = () => {
     }
   }, [profile, currentUser])
 
+  // The /me query exists to refresh permissions for a live session (e.g. an
+  // admin revoked a permission while this tab stayed open), but a query
+  // result sitting in RTK Query's cache never reaches the Redux auth slice on
+  // its own. Push it in here so Sidebar/useCan/PrivateRoute/FeesPage — which
+  // all read the Redux copy — see the latest roles/permissions/permissionDetails
+  // as soon as this page fetches them, not just on next login.
+  useEffect(() => {
+    if (profile) {
+      dispatch(updateUserProfile(profile))
+    }
+  }, [profile, dispatch])
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
