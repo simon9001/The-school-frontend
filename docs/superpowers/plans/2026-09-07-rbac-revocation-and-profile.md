@@ -18,6 +18,7 @@
 - **Only pure logic is unit-tested in this repo.** There is no database test harness and this plan does not build one. Database-touching changes are verified by the exact manual commands given in their task.
 - **`permissions: string[]` on the user object is load-bearing** — `PrivateRoute`, `Sidebar`, `useCan`, `GlobalSearchBar` and every page's inline check read it. Never change or remove it; only add alongside it.
 - **The frontend has no test runner.** Frontend verification is manual, using the seeded demo users.
+- **`Accounts/dist/` is tracked in git and IS the deploy artifact** — `package.json` `"start"` runs `node dist/index.js`, and `dist/` is not gitignored. Any task that changes backend source must finish with `pnpm build` and commit the rebuilt `dist/` as its own commit. Skipping it means the change compiles, tests green, review passes, and the running server still executes the old code.
 - Package manager is **pnpm** in both repos.
 
 ---

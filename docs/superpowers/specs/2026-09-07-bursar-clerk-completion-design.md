@@ -321,6 +321,24 @@ everything before them.
 
 ---
 
+## 7a. Repository constraint that binds every plan from this spec
+
+`Accounts/dist/` is tracked in git and is the deploy artifact — `package.json`
+`"start"` runs `node dist/index.js`, and `dist/` is not gitignored. **Any task
+that changes backend source must end with `pnpm build` and a commit of the
+rebuilt `dist/`.**
+
+This is recorded here rather than only in one plan because it is not obvious and
+it fails silently: source compiles, tests pass, review approves, and the running
+server still executes the old code. It was missed on this spec's first plan and
+caught only by the final whole-branch review, by which point two of six
+deliverables would have shipped inert. Every plan derived from this spec —
+Banking, Reports, and the section 8 items — inherits it.
+
+A follow-up worth taking separately: stop tracking `dist/` and build on deploy
+instead. A tracked build artifact that can silently disagree with source is the
+underlying defect; rebuilding it faithfully is only the workaround.
+
 ## 8. Related work: what comes after this spec
 
 Five further requirements were raised on 2026-09-07. They are recorded here so
