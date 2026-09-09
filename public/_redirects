@@ -1,0 +1,4 @@
+# Same SPA fallback as netlify.toml, but this file ships inside dist/ — so it
+# also applies when dist/ is drag-dropped into Netlify instead of built from
+# the repo, where a root-level netlify.toml would never be read.
+/*  /index.html  200

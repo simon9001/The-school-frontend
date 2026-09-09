@@ -1,0 +1,17 @@
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 / TypeScript 6 need a current Node. Netlify still defaults to an
+  # older LTS on some build images, so pin it explicitly.
+  NODE_VERSION = "22"
+
+# Client-side routing: React Router owns every path, but the host only has
+# index.html on disk. Without this, a refresh or a pasted link on any route
+# deeper than "/" returns Netlify's 404 instead of the app.
+# Real files in dist/ (assets, favicons) still win over this rule.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

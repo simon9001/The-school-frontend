@@ -3,6 +3,7 @@ import Login from './modules/auth/LoginPage'
 import Dashboard from './modules/dashboard/DashboardPage'
 import ComingSoon from './components/ComingSoon'
 import AccessDenied from './components/AccessDenied'
+import NotFound from './components/NotFound'
 import AccountsPage from './modules/finance/AccountsPage'
 import FundsPage from './modules/finance/FundsPage'
 import TrialBalancePage from './modules/finance/TrialBalancePage'
@@ -83,6 +84,9 @@ function App() {
     { path: '/dashboard/finance/inventory', element: <PrivateRoute requiredPermission="inventory.view"><InventoryPage /></PrivateRoute> },
 
     ...placeholderRoutes,
+
+    // Must stay last: matches anything the routes above did not.
+    { path: '*', element: <NotFound /> },
   ])
 
   return (

@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
     readonly VITE_SCHOOL_NAME?: string
+    readonly VITE_API_DOMAIN?: string
 }
 
 interface ImportMeta {
