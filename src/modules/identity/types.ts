@@ -70,3 +70,13 @@ export type UpdateUserValues = {
 export type ResetPasswordValues = {
   newPassword: string
 }
+
+export type PermissionSource = 'role' | 'granted' | 'revoked'
+
+/** A catalogue permission as it applies to one user. */
+export interface UserPermission extends PermissionDef {
+  /** An override always wins this label; 'role' means no override exists. */
+  source: PermissionSource
+  /** Whether the user actually holds it right now. */
+  effective: boolean
+}

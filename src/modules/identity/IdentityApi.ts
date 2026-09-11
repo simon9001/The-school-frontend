@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { authBaseQuery } from '../../apiDomain/authBaseQuery'
 import type { ApiEnvelope } from '../../types/Types'
-import type { AuditLogEntry, ManagedUser, NewUserValues, PermissionDef, ResetPasswordValues, RoleWithPermissions, UpdateUserValues } from './types'
+import type { AuditLogEntry, ManagedUser, NewUserValues, PermissionDef, ResetPasswordValues, RoleWithPermissions, UpdateUserValues, UserPermission } from './types'
 
 export const identityApi = createApi({
   reducerPath: 'identityApi',
   baseQuery: authBaseQuery,
-  tagTypes: ['Users', 'Roles', 'AuditLog'],
+  tagTypes: ['Users', 'Roles', 'AuditLog', 'UserPermissions'],
   endpoints: (builder) => ({
     getAllUsers: builder.query<ManagedUser[], void>({
       query: () => 'users',
@@ -61,6 +61,31 @@ export const identityApi = createApi({
       transformResponse: (response: ApiEnvelope<AuditLogEntry[]>) => response.data,
       providesTags: ['AuditLog'],
     }),
+
+    getUserPermissions: builder.query<UserPermission[], number>({
+      query: (userId) => `users/${userId}/permissions`,
+      transformResponse: (response: ApiEnvelope<UserPermission[]>) => response.data,
+      providesTags: ['UserPermissions'],
+    }),
+
+    setPermissionOverride: builder.mutation<UserPermission[], { userId: number; code: string; granted: boolean }>({
+      query: ({ userId, code, granted }) => ({
+        url: `users/${userId}/permissions/${code}`,
+        method: 'PUT',
+        body: { granted },
+      }),
+      transformResponse: (response: ApiEnvelope<UserPermission[]>) => response.data,
+      invalidatesTags: ['UserPermissions', 'AuditLog'],
+    }),
+
+    clearPermissionOverride: builder.mutation<UserPermission[], { userId: number; code: string }>({
+      query: ({ userId, code }) => ({
+        url: `users/${userId}/permissions/${code}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response: ApiEnvelope<UserPermission[]>) => response.data,
+      invalidatesTags: ['UserPermissions', 'AuditLog'],
+    }),
   }),
 })
 
@@ -74,4 +99,7 @@ export const {
   useGetAllRolesQuery,
   useGetAllPermissionsQuery,
   useGetAuditLogQuery,
+  useGetUserPermissionsQuery,
+  useSetPermissionOverrideMutation,
+  useClearPermissionOverrideMutation,
 } = identityApi
