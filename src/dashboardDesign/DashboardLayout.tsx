@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Sidebar from './Sidebar'
+import { useSyncPermissions } from '../hooks/useSyncPermissions'
 
 interface DashboardLayoutProps {
     children: React.ReactNode
@@ -9,6 +10,11 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+    // Every dashboard page renders inside this shell, so syncing here means a
+    // permission granted or revoked by an admin reaches a live session on the
+    // next navigation instead of waiting for a re-login.
+    useSyncPermissions()
 
     return (
         <div className="min-h-screen bg-gray-50">
