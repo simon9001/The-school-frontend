@@ -25,6 +25,12 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
     const [setOverride] = useSetPermissionOverrideMutation()
     const [clearOverride] = useClearPermissionOverrideMutation()
     const [search, setSearch] = useState('')
+    // The last-administrator guard explains a rule about one specific
+    // permission, so the rejection belongs next to that row - in a scrolling
+    // list of 94 rows a corner toast leaves the reader guessing which one it
+    // refers to. Only one row can be failing at a time: a new attempt clears
+    // the previous message.
+    const [rowError, setRowError] = useState<{ code: string; message: string } | null>(null)
 
     const byModule = useMemo(() => {
         const grouped = new Map<string, UserPermission[]>()
@@ -39,6 +45,7 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
     }, [permissions, search])
 
     const apply = async (code: string, next: 'role' | 'granted' | 'revoked') => {
+        setRowError(null)
         const loadingToastId = toast.loading('Updating permission...')
         try {
             if (next === 'role') await clearOverride({ userId, code }).unwrap()
@@ -46,7 +53,8 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
             toast.success('Permission updated', { id: loadingToastId })
         } catch (err) {
             const message = (err as { data?: { error?: string } })?.data?.error ?? 'Failed to update permission'
-            toast.error(message, { id: loadingToastId })
+            toast.dismiss(loadingToastId)
+            setRowError({ code, message })
         }
     }
 
@@ -72,29 +80,38 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
                     <div key={module} className="mb-4">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{module}</h4>
                         {rows.map((p) => (
-                            <div
-                                key={p.code}
-                                className={`flex items-center justify-between gap-3 py-1.5 border-b border-gray-100 ${p.source !== 'role' ? 'bg-amber-50' : ''}`}
-                            >
-                                <div className="min-w-0">
-                                    <div className="font-mono text-xs text-gray-800 truncate">{p.code}</div>
-                                    <div className="text-xs text-gray-500 truncate">{p.description}</div>
+                            <div key={p.code}>
+                                <div
+                                    className={`flex items-center justify-between gap-3 py-1.5 border-b border-gray-100 ${p.source !== 'role' ? 'bg-amber-50' : ''}`}
+                                >
+                                    <div className="min-w-0">
+                                        <div className="font-mono text-xs text-gray-800 truncate">{p.code}</div>
+                                        <div className="text-xs text-gray-500 truncate">{p.description}</div>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <span className={`badge badge-sm ${SOURCE_BADGE[p.source]}`}>
+                                            {p.effective ? 'allowed' : 'denied'}
+                                        </span>
+                                        <select
+                                            value={p.source}
+                                            onChange={(e) => apply(p.code, e.target.value as 'role' | 'granted' | 'revoked')}
+                                            aria-label={`Override for ${p.code}`}
+                                            className="select select-bordered select-xs"
+                                        >
+                                            <option value="role">Default (role)</option>
+                                            <option value="granted">Grant</option>
+                                            <option value="revoked">Revoke</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <span className={`badge badge-sm ${SOURCE_BADGE[p.source]}`}>
-                                        {p.effective ? 'allowed' : 'denied'}
-                                    </span>
-                                    <select
-                                        value={p.source}
-                                        onChange={(e) => apply(p.code, e.target.value as 'role' | 'granted' | 'revoked')}
-                                        aria-label={`Override for ${p.code}`}
-                                        className="select select-bordered select-xs"
+                                {rowError?.code === p.code && (
+                                    <p
+                                        role="alert"
+                                        className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 my-1 text-xs text-red-700"
                                     >
-                                        <option value="role">Default (role)</option>
-                                        <option value="granted">Grant</option>
-                                        <option value="revoked">Revoke</option>
-                                    </select>
-                                </div>
+                                        {rowError.message}
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
