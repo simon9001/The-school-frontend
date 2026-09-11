@@ -63,6 +63,7 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search permissions by code or description..."
+                aria-label="Search permissions"
                 className="input input-bordered input-sm w-full mb-3"
             />
 
@@ -86,6 +87,7 @@ const UserPermissionsTab: React.FC<{ userId: number }> = ({ userId }) => {
                                     <select
                                         value={p.source}
                                         onChange={(e) => apply(p.code, e.target.value as 'role' | 'granted' | 'revoked')}
+                                        aria-label={`Override for ${p.code}`}
                                         className="select select-bordered select-xs"
                                     >
                                         <option value="role">Default (role)</option>
