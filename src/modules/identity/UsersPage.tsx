@@ -190,10 +190,10 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
                 <p className="text-sm text-gray-500 font-mono mb-4">{user.email}</p>
 
                 <div role="tablist" className="tabs tabs-bordered mb-4">
-                    <button role="tab" className={`tab ${tab === 'access' ? 'tab-active' : ''}`} onClick={() => setTab('access')}>
+                    <button type="button" role="tab" aria-selected={tab === 'access'} className={`tab ${tab === 'access' ? 'tab-active' : ''}`} onClick={() => setTab('access')}>
                         Details &amp; Roles
                     </button>
-                    <button role="tab" className={`tab ${tab === 'permissions' ? 'tab-active' : ''}`} onClick={() => setTab('permissions')}>
+                    <button type="button" role="tab" aria-selected={tab === 'permissions'} className={`tab ${tab === 'permissions' ? 'tab-active' : ''}`} onClick={() => setTab('permissions')}>
                         Permissions
                     </button>
                 </div>
