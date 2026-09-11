@@ -198,7 +198,13 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
                     </button>
                 </div>
 
-                {tab === 'access' ? (<>
+                {/* Both tab panels stay mounted and are toggled with Tailwind's
+                    `hidden` class (display:none, unlike the bare hidden
+                    attribute which layout rules can override). Unmounting the
+                    access branch reset both react-hook-form instances, so an
+                    admin who typed a name change, checked the Permissions tab
+                    and came back found the edit silently reverted. */}
+                <div className={tab === 'access' ? '' : 'hidden'}>
                 <form onSubmit={handleEditSubmit(onSaveEdit)} className="mb-6">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Details</h3>
                     <div className="grid grid-cols-2 gap-3 mb-3">
@@ -242,9 +248,11 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
                         <button type="button" onClick={handleAddRole} disabled={!addRoleId} className="btn btn-sm bg-green-800 hover:bg-green-900 text-white"><Plus size={14} /> Add</button>
                     </div>
                 </div>
-                </>) : (
+                </div>
+
+                <div className={tab === 'permissions' ? '' : 'hidden'}>
                     <UserPermissionsTab userId={user.id} />
-                )}
+                </div>
 
                 <div className="flex justify-end mt-6">
                     <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">Close</button>
