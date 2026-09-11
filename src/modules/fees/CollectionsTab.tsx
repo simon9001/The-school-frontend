@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { XCircle } from 'lucide-react'
 import { useGetPaymentsInRangeQuery } from './FeesApi'
 import { useGetAllStudentsQuery } from '../students/StudentApi'
-import type { PaymentMethod } from './types'
+import PrintableReport from '../../components/PrintableReport'
+import type { ReportColumn } from '../../components/PrintableReport'
+import type { PaymentMethod, FeePayment } from './types'
 
 const formatMoney = (amount: string | number) =>
     Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -30,6 +32,17 @@ const CollectionsTab: React.FC = () => {
         count: rows.filter((p) => p.paymentMethod === method).length,
     }))
 
+    // Built here rather than at module scope because studentLabel closes over
+    // the students query.
+    const columns: ReportColumn<FeePayment>[] = [
+        { header: 'Receipt No.', value: (p) => p.receiptNo, className: 'font-mono text-sm' },
+        { header: 'Date', value: (p) => p.paymentDate },
+        { header: 'Student', value: (p) => studentLabel(p.studentId), className: 'font-medium text-gray-800' },
+        { header: 'Method', value: (p) => p.paymentMethod, className: 'capitalize' },
+        { header: 'Reference', value: (p) => p.referenceNo ?? '-', className: 'font-mono text-sm text-gray-500' },
+        { header: 'Amount', value: (p) => formatMoney(p.amount), align: 'right', className: 'font-mono' },
+    ]
+
     return (
         <div className="space-y-4">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-wrap items-end gap-4">
@@ -44,21 +57,6 @@ const CollectionsTab: React.FC = () => {
                 <button onClick={() => { setFrom(today); setTo(today) }} className="btn btn-ghost">Today</button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                {totalByMethod.map(({ method, amount, count }) => (
-                    <div key={method} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                        <div className="text-xs text-gray-500 uppercase tracking-wide capitalize">{method}</div>
-                        <div className="text-lg font-bold font-mono text-gray-800">{formatMoney(amount)}</div>
-                        <div className="text-xs text-gray-400">{count} receipt{count === 1 ? '' : 's'}</div>
-                    </div>
-                ))}
-                <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4">
-                    <div className="text-xs text-green-800 uppercase tracking-wide font-semibold">Total</div>
-                    <div className="text-lg font-bold font-mono text-green-900">{formatMoney(total)}</div>
-                    <div className="text-xs text-green-700">{rows.length} receipt{rows.length === 1 ? '' : 's'}</div>
-                </div>
-            </div>
-
             {isLoading ? (
                 <div className="flex justify-center items-center py-16"><span className="loading loading-spinner loading-lg text-green-800"></span></div>
             ) : isError ? (
@@ -66,37 +64,31 @@ const CollectionsTab: React.FC = () => {
                     <XCircle className="mx-auto text-red-500 mb-3" size={40} />
                     <p className="text-red-700">Unable to load collections.</p>
                 </div>
-            ) : rows.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">No payments received in this period.</div>
             ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto scroll-fade-x">
-                        <table className="table table-zebra w-full">
-                            <thead>
-                                <tr className="bg-gray-50">
-                                    <th>Receipt No.</th>
-                                    <th>Date</th>
-                                    <th>Student</th>
-                                    <th>Method</th>
-                                    <th>Reference</th>
-                                    <th className="text-right">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows.map((p) => (
-                                    <tr key={p.id} className="hover:bg-gray-50">
-                                        <td className="font-mono text-sm">{p.receiptNo}</td>
-                                        <td>{p.paymentDate}</td>
-                                        <td className="font-medium text-gray-800">{studentLabel(p.studentId)}</td>
-                                        <td className="capitalize">{p.paymentMethod}</td>
-                                        <td className="font-mono text-sm text-gray-500">{p.referenceNo ?? '—'}</td>
-                                        <td className="text-right font-mono">{formatMoney(p.amount)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                <PrintableReport
+                    title="Daily Collections Register"
+                    subtitle={from === to ? `For ${from}` : `From ${from} to ${to}`}
+                    filename={from === to ? `collections-${from}` : `collections-${from}-to-${to}`}
+                    columns={columns}
+                    rows={rows}
+                    footerCells={['Total', '', '', '', '', formatMoney(total)]}
+                    emptyMessage="No payments received in this period."
+                >
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-4">
+                        {totalByMethod.map(({ method, amount, count }) => (
+                            <div key={method} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                                <div className="text-xs text-gray-500 uppercase tracking-wide capitalize">{method}</div>
+                                <div className="text-lg font-bold font-mono text-gray-800">{formatMoney(amount)}</div>
+                                <div className="text-xs text-gray-400">{count} receipt{count === 1 ? '' : 's'}</div>
+                            </div>
+                        ))}
+                        <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 p-4">
+                            <div className="text-xs text-green-800 uppercase tracking-wide font-semibold">Total</div>
+                            <div className="text-lg font-bold font-mono text-green-900">{formatMoney(total)}</div>
+                            <div className="text-xs text-green-700">{rows.length} receipt{rows.length === 1 ? '' : 's'}</div>
+                        </div>
                     </div>
-                </div>
+                </PrintableReport>
             )}
         </div>
     )

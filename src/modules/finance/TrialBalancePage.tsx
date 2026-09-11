@@ -3,11 +3,39 @@ import { Scale, CheckCircle2, AlertTriangle } from 'lucide-react'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
 import { useGetTrialBalanceQuery } from './JournalApi'
 import { useGetAllFundsQuery } from './FundApi'
+import PrintableReport from '../../components/PrintableReport'
+import type { ReportColumn } from '../../components/PrintableReport'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
 const formatMoney = (amount: number) =>
     amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+type TrialBalanceRow = {
+    accountId: number
+    code: string
+    name: string
+    type: string
+    totalDebit: number
+    totalCredit: number
+    balance: number
+}
+
+// Declared once and handed to PrintableReport, which renders the on-screen
+// table from it and reuses the same value() for the PDF and CSV — so the three
+// outputs cannot drift apart as columns change.
+const columns: ReportColumn<TrialBalanceRow>[] = [
+    { header: 'Code', value: (r) => r.code, className: 'font-mono text-sm' },
+    { header: 'Account', value: (r) => r.name, className: 'font-medium text-gray-800' },
+    {
+        header: 'Type',
+        value: (r) => r.type.replace('_', ' '),
+        render: (r) => <span className="badge badge-outline capitalize">{r.type.replace('_', ' ')}</span>,
+    },
+    { header: 'Debit', value: (r) => formatMoney(r.totalDebit), align: 'right', className: 'font-mono' },
+    { header: 'Credit', value: (r) => formatMoney(r.totalCredit), align: 'right', className: 'font-mono' },
+    { header: 'Balance', value: (r) => formatMoney(r.balance), align: 'right', className: 'font-mono font-semibold' },
+]
 
 const TrialBalancePage: React.FC = () => {
     const [asOfDate, setAsOfDate] = useState(todayIso())
@@ -18,6 +46,10 @@ const TrialBalancePage: React.FC = () => {
         asOfDate,
         fundId: fundId ? Number(fundId) : undefined,
     })
+
+    const fundLabel = fundId
+        ? funds?.find((f) => String(f.id) === fundId)?.name ?? 'Selected fund'
+        : 'All funds'
 
     return (
         <DashboardLayout>
@@ -52,57 +84,22 @@ const TrialBalancePage: React.FC = () => {
                     Unable to load the trial balance.
                 </div>
             ) : (
-                <>
+                <PrintableReport
+                    title="Trial Balance"
+                    subtitle={`As at ${asOfDate} · ${fundLabel}`}
+                    filename={`trial-balance-${asOfDate}`}
+                    columns={columns}
+                    rows={data.rows}
+                    footerCells={['Total', '', '', formatMoney(data.totalDebit), formatMoney(data.totalCredit), '']}
+                    emptyMessage={`No posted transactions as of this date${fundId ? ' for this fund' : ''}.`}
+                >
                     <div className={`mb-4 rounded-lg p-4 flex items-center gap-3 ${data.isBalanced ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
                         {data.isBalanced ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
                         <span className="font-medium">
                             {data.isBalanced ? 'Balanced' : 'Out of balance'} — Total Debit {formatMoney(data.totalDebit)} / Total Credit {formatMoney(data.totalCredit)}
                         </span>
                     </div>
-
-                    {data.rows.length === 0 ? (
-                        <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
-                            No posted transactions as of this date{fundId ? ' for this fund' : ''}.
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <div className="overflow-x-auto scroll-fade-x">
-                                <table className="table table-zebra w-full">
-                                    <thead>
-                                        <tr className="bg-gray-50">
-                                            <th>Code</th>
-                                            <th>Account</th>
-                                            <th>Type</th>
-                                            <th className="text-right">Debit</th>
-                                            <th className="text-right">Credit</th>
-                                            <th className="text-right">Balance</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data.rows.map((row) => (
-                                            <tr key={row.accountId} className="hover:bg-gray-50">
-                                                <td className="font-mono text-sm">{row.code}</td>
-                                                <td className="font-medium text-gray-800">{row.name}</td>
-                                                <td><span className="badge badge-outline capitalize">{row.type.replace('_', ' ')}</span></td>
-                                                <td className="text-right font-mono">{formatMoney(row.totalDebit)}</td>
-                                                <td className="text-right font-mono">{formatMoney(row.totalCredit)}</td>
-                                                <td className="text-right font-mono font-semibold">{formatMoney(row.balance)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr className="bg-gray-50 font-bold">
-                                            <td colSpan={3}>Total</td>
-                                            <td className="text-right font-mono">{formatMoney(data.totalDebit)}</td>
-                                            <td className="text-right font-mono">{formatMoney(data.totalCredit)}</td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </>
+                </PrintableReport>
             )}
         </DashboardLayout>
     )

@@ -38,6 +38,35 @@ body {
     .no-print {
         display: none !important;
     }
+
+    /* A report runs to several pages where a receipt never did: repeat the
+       column headers and the totals row on each one, and don't split a row
+       across a page boundary. */
+    .print-region thead {
+        display: table-header-group;
+    }
+
+    .print-region tfoot {
+        display: table-footer-group;
+    }
+
+    .print-region tr,
+    .print-region td,
+    .print-region th {
+        page-break-inside: avoid;
+    }
+
+    /* On screen a wide table scrolls sideways inside its container; on paper
+       that container would simply crop the columns that scrolled out of view. */
+    .print-region .overflow-x-auto {
+        overflow: visible !important;
+    }
+
+    /* The scroll-shadow gradients are a scrolling affordance — on paper they
+       are just grey smears down the edges of the table. */
+    .print-region .scroll-fade-x {
+        background: none !important;
+    }
 }
 
 .scroll-fade-x {
