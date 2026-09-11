@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { UserCog, Plus, X, SaveIcon, XCircle, Pencil, Key } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import UserPermissionsTab from './UserPermissionsTab'
 import type { RootState } from '../../store/store'
 import {
     useGetAllUsersQuery,
@@ -106,6 +107,7 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
     })
     const { register: registerPw, handleSubmit: handlePwSubmit, reset: resetPwForm, formState: { errors: pwErrors } } = useForm<{ newPassword: string }>()
     const [addRoleId, setAddRoleId] = useState('')
+    const [tab, setTab] = useState<'access' | 'permissions'>('access')
 
     const onSaveEdit: SubmitHandler<UpdateUserValues> = async (formValues) => {
         const loadingToastId = toast.loading('Saving...')
@@ -176,7 +178,7 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
 
     return (
         <div className="modal modal-open">
-            <div className="modal-box max-w-lg">
+            <div className="modal-box max-w-3xl">
                 <div className="flex items-start justify-between mb-1">
                     <h2 className="text-xl font-bold text-green-800">{user.fullName}</h2>
                     {user.status === 'active' ? (
@@ -187,6 +189,16 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
                 </div>
                 <p className="text-sm text-gray-500 font-mono mb-4">{user.email}</p>
 
+                <div role="tablist" className="tabs tabs-bordered mb-4">
+                    <button role="tab" className={`tab ${tab === 'access' ? 'tab-active' : ''}`} onClick={() => setTab('access')}>
+                        Details &amp; Roles
+                    </button>
+                    <button role="tab" className={`tab ${tab === 'permissions' ? 'tab-active' : ''}`} onClick={() => setTab('permissions')}>
+                        Permissions
+                    </button>
+                </div>
+
+                {tab === 'access' ? (<>
                 <form onSubmit={handleEditSubmit(onSaveEdit)} className="mb-6">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Details</h3>
                     <div className="grid grid-cols-2 gap-3 mb-3">
@@ -230,6 +242,9 @@ const ManageUserModal: React.FC<{ user: ManagedUser; roles: RoleWithPermissions[
                         <button type="button" onClick={handleAddRole} disabled={!addRoleId} className="btn btn-sm bg-green-800 hover:bg-green-900 text-white"><Plus size={14} /> Add</button>
                     </div>
                 </div>
+                </>) : (
+                    <UserPermissionsTab userId={user.id} />
+                )}
 
                 <div className="flex justify-end mt-6">
                     <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">Close</button>
