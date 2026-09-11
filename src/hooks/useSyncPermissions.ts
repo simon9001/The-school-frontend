@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useMeQuery } from '../modules/auth/AuthApi'
 import { updateUserProfile } from '../modules/auth/AuthSlice'
-import type { AppDispatch } from '../store/store'
+import type { AppDispatch, RootState } from '../store/store'
 
 /**
  * Keeps the Redux auth copy of the signed-in user in step with the server.
@@ -24,7 +24,13 @@ import type { AppDispatch } from '../store/store'
  */
 export const useSyncPermissions = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { data } = useMeQuery(undefined, { refetchOnMountOrArgChange: true })
+  // DashboardLayout is also rendered by the public NotFound page, so skip the
+  // request when there is no token rather than firing a guaranteed 401.
+  const isAuthenticated = useSelector((state: RootState) => state.authSlice.isAuthenticated)
+  const { data } = useMeQuery(undefined, {
+    skip: !isAuthenticated,
+    refetchOnMountOrArgChange: true,
+  })
 
   useEffect(() => {
     if (data) {
