@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { toast } from 'sonner'
 import { clearCredentials } from '../../modules/auth/AuthSlice'
 import type { AppDispatch, RootState } from '../../store/store'
 
@@ -19,8 +18,10 @@ export const InactivityTimer: React.FC<InactivityTimerProps> = ({ timeoutMinutes
 
     const logoutDueToInactivity = () => {
         sessionStorage.removeItem(STORAGE_KEY)
-        dispatch(clearCredentials())
-        toast.error('You have been logged out due to inactivity.')
+        // A toast fired here never rendered: clearing credentials sends
+        // PrivateRoute to /login, unmounting this page and the <Toaster/> it
+        // would have appeared in. LoginPage announces the reason instead.
+        dispatch(clearCredentials({ reason: 'inactive' }))
     }
 
     const resetTimer = () => {

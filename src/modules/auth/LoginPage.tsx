@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
 import { GraduationCap, LogIn, Eye, EyeOff } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import { AuthApi } from './AuthApi'
-import { setCredentials } from './AuthSlice'
-import type { AppDispatch } from '../../store/store'
+import { clearLogoutReason, setCredentials } from './AuthSlice'
+import type { AppDispatch, RootState } from '../../store/store'
 import type { LoginFormValues } from './types'
 
 const Login: React.FC = () => {
@@ -15,6 +15,21 @@ const Login: React.FC = () => {
     const [login, { isLoading }] = AuthApi.useLoginMutation()
     const dispatch = useDispatch<AppDispatch>()
     const navigate = useNavigate()
+
+    // A session that ended on its own (expired token, inactivity timeout) drops
+    // the user here with no explanation otherwise — the toast cannot be fired
+    // where it happens, because clearing credentials unmounts that page and its
+    // <Toaster/> in the same render.
+    const logoutReason = useSelector((state: RootState) => state.authSlice.logoutReason)
+    useEffect(() => {
+        if (!logoutReason) return
+        toast.error(
+            logoutReason === 'expired'
+                ? 'Your session has expired. Please sign in again.'
+                : 'You were signed out after a period of inactivity.',
+        )
+        dispatch(clearLogoutReason())
+    }, [logoutReason, dispatch])
 
     const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
         const loadingToastId = toast.loading('Signing in...')
