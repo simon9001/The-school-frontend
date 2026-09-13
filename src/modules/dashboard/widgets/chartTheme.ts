@@ -50,9 +50,25 @@ const trimZero = (n: number) => String(Number(n.toFixed(1)))
 /**
  * Recharts wants one flat object per point; the API deliberately carries the
  * series keys nested so the contract is not shaped by this library.
+ *
+ * Every value is coerced with `?? 0`, and any `seriesKeys` the point omits are
+ * filled with 0. Defence in depth on the render path: the backend's zeroFill
+ * guarantees each declared key is present, but if one ever were not, Recharts
+ * would hand `undefined` to the tooltip formatter and the card would read
+ * "KES NaN". SeriesWidget's own hasData check already coerces the same values,
+ * so leaving this one uncoerced was the inconsistency. Keys the series did not
+ * declare are still passed through, so nothing is silently dropped.
  */
-export function toRechartsRows(points: SeriesPoint[]): Array<Record<string, string | number>> {
-    return points.map((point) => ({ label: point.label, ...point.values }))
+export function toRechartsRows(
+    points: SeriesPoint[],
+    seriesKeys: readonly string[] = [],
+): Array<Record<string, string | number>> {
+    return points.map((point) => {
+        const row: Record<string, string | number> = { label: point.label }
+        for (const key of seriesKeys) row[key] = point.values[key] ?? 0
+        for (const [key, value] of Object.entries(point.values)) row[key] = value ?? 0
+        return row
+    })
 }
 
 export const GRID_PROPS = { stroke: '#f3f4f6', strokeDasharray: '3 3' } as const

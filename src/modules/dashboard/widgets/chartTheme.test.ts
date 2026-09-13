@@ -58,6 +58,26 @@ describe('toRechartsRows', () => {
   it('returns an empty array for no points', () => {
     expect(toRechartsRows([])).toEqual([])
   })
+
+  // Defence in depth on the render path: the backend's zeroFill guarantees every
+  // declared key is present, but if one ever were not, undefined reaches the
+  // tooltip formatter as Number(undefined) and the card reads "KES NaN".
+  it('renders a nullish point value as zero rather than passing undefined on', () => {
+    const rows = toRechartsRows([
+      { label: 'Jul', values: { billed: 1000, collected: undefined as unknown as number } },
+    ])
+    expect(rows).toEqual([{ label: 'Jul', billed: 1000, collected: 0 }])
+  })
+
+  it('fills a declared series key that the point omits entirely', () => {
+    const rows = toRechartsRows([{ label: 'Jul', values: { billed: 1000 } }], ['billed', 'collected'])
+    expect(rows).toEqual([{ label: 'Jul', billed: 1000, collected: 0 }])
+  })
+
+  it('still carries keys the series did not declare, so nothing is silently dropped', () => {
+    const rows = toRechartsRows([{ label: 'Jul', values: { billed: 1000, extra: 5 } }], ['billed'])
+    expect(rows).toEqual([{ label: 'Jul', billed: 1000, extra: 5 }])
+  })
 })
 
 describe('CHART_COLORS', () => {
