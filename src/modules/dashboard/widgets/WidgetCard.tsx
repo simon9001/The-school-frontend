@@ -31,6 +31,12 @@ const WidgetBody: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
                 </Suspense>
             )
     }
+
+    // Exhaustiveness guard: every kind returns above, so `widget` narrows to
+    // `never` here. Adding a fourth kind without a case makes this line a
+    // compile error rather than a silently blank card.
+    const exhaustive: never = widget
+    return exhaustive
 }
 
 const WidgetCard: React.FC<{ widget: DashboardWidget }> = ({ widget }) => (
