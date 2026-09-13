@@ -1,55 +1,7 @@
 import React from 'react'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
 import { useGetDashboardSummaryQuery } from './DashboardApi'
-import type { DashboardWidget, WidgetTone } from './types'
-
-const TONE_TEXT: Record<WidgetTone, string> = {
-    default: 'text-gray-800',
-    success: 'text-green-700',
-    warning: 'text-amber-700',
-    danger: 'text-red-600',
-}
-
-const TONE_DOT: Record<WidgetTone, string> = {
-    default: 'bg-gray-300',
-    success: 'bg-green-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-red-500',
-}
-
-const WidgetCard: React.FC<{ widget: DashboardWidget }> = ({ widget }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-        <div className="text-sm font-semibold text-gray-600 mb-3">{widget.title}</div>
-
-        {widget.kind === 'stats' ? (
-            <div className="grid grid-cols-2 gap-4">
-                {widget.stats.map((s, i) => (
-                    <div key={i}>
-                        <div className="text-xs text-gray-500">{s.label}</div>
-                        <div className={`text-lg font-bold ${TONE_TEXT[s.tone ?? 'default']}`}>{s.value}</div>
-                    </div>
-                ))}
-            </div>
-        ) : widget.rows.length === 0 ? (
-            <div className="text-sm text-gray-400">{widget.emptyText}</div>
-        ) : (
-            <div className="space-y-2">
-                {widget.rows.map((r, i) => (
-                    <div key={i} className="flex items-start justify-between gap-3 text-sm border-b border-gray-100 last:border-0 pb-2 last:pb-0">
-                        <div className="flex items-start gap-2 min-w-0">
-                            <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${TONE_DOT[r.tone ?? 'default']}`} />
-                            <div className="min-w-0">
-                                <div className="font-medium text-gray-800 truncate">{r.label}</div>
-                                {r.sublabel && <div className="text-gray-500 text-xs truncate">{r.sublabel}</div>}
-                            </div>
-                        </div>
-                        {r.value && <div className="text-gray-600 text-xs whitespace-nowrap">{r.value}</div>}
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
-)
+import WidgetCard from './widgets/WidgetCard'
 
 const Dashboard: React.FC = () => {
     const { data, isLoading, isError } = useGetDashboardSummaryQuery()
