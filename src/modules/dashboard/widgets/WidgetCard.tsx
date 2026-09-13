@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import type { DashboardWidget } from '../types'
 import StatsWidget from './StatsWidget'
 import ListWidget from './ListWidget'
+import ChartErrorBoundary from './ChartErrorBoundary'
 
 // Recharts is ~100KB gzipped and only chart widgets need it, so it is split out
 // of the main bundle. A role with no chart permissions never downloads it.
@@ -18,17 +19,22 @@ const WidgetBody: React.FC<{ widget: DashboardWidget }> = ({ widget }) => {
         case 'list':
             return <ListWidget rows={widget.rows} emptyText={widget.emptyText} />
         case 'series':
+            // The boundary sits OUTSIDE Suspense: a rejected lazy import throws
+            // from Suspense itself, so a boundary nested inside would never see
+            // it. Scoped to the body, so the card title survives either way.
             return (
-                <Suspense fallback={<ChartSkeleton />}>
-                    <SeriesWidget
-                        title={widget.title}
-                        form={widget.form}
-                        valueFormat={widget.valueFormat}
-                        series={widget.series}
-                        points={widget.points}
-                        emptyText={widget.emptyText}
-                    />
-                </Suspense>
+                <ChartErrorBoundary fallback={widget.emptyText || 'Chart unavailable.'}>
+                    <Suspense fallback={<ChartSkeleton />}>
+                        <SeriesWidget
+                            title={widget.title}
+                            form={widget.form}
+                            valueFormat={widget.valueFormat}
+                            series={widget.series}
+                            points={widget.points}
+                            emptyText={widget.emptyText}
+                        />
+                    </Suspense>
+                </ChartErrorBoundary>
             )
     }
 
