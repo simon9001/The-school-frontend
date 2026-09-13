@@ -26,6 +26,44 @@ interface SeriesWidgetProps {
 
 const CHART_HEIGHT = 200
 
+/**
+ * The aria-label IS this chart's text alternative — no table alternative ships
+ * alongside it — so it has to carry the data, not merely announce that a chart
+ * exists. "Present across 30 points" told a screen-reader user nothing.
+ *
+ * One clause per series giving its first and last value with their point labels,
+ * plus the range for a single-series chart (with two or more, "lowest" would not
+ * say lowest of WHAT). Stays well under 200 characters on a full 30-point chart,
+ * because it summarises the shape rather than reading every point aloud.
+ */
+function describeChart(args: {
+    title: string
+    series: ChartSeries[]
+    points: SeriesPoint[]
+    valueFormat: ValueFormat
+}): string {
+    const { title, series, points, valueFormat } = args
+    const first = points[0]
+    const last = points[points.length - 1]
+    const at = (point: SeriesPoint, key: string) => formatValue(point.values[key] ?? 0, valueFormat)
+
+    const clauses = series.map((s) =>
+        points.length === 1
+            ? `${s.label}, ${at(first, s.key)} on ${first.label}`
+            : `${s.label}, from ${at(first, s.key)} on ${first.label} to ${at(last, s.key)} on ${last.label}`,
+    )
+
+    let range = ''
+    if (series.length === 1 && points.length > 1) {
+        const values = points.map((point) => point.values[series[0].key] ?? 0)
+        range =
+            `; lowest ${formatValue(Math.min(...values), valueFormat)}` +
+            `, highest ${formatValue(Math.max(...values), valueFormat)}`
+    }
+
+    return `${title}. ${clauses.join('; ')}${range}.`
+}
+
 const SeriesWidget: React.FC<SeriesWidgetProps> = ({ form, valueFormat, series, points, emptyText, title }) => {
     // All-zero is indistinguishable from no data to a reader, and a flat line at
     // zero looks like a broken chart rather than an empty period.
@@ -34,12 +72,15 @@ const SeriesWidget: React.FC<SeriesWidgetProps> = ({ form, valueFormat, series, 
         return <div className="text-sm text-gray-400">{emptyText}</div>
     }
 
-    const rows = toRechartsRows(points)
+    const rows = toRechartsRows(
+        points,
+        series.map((s) => s.key),
+    )
     const tickFormatter = (value: number) => formatAxisTick(value, valueFormat)
     // Recharts' Tooltip formatter type is (value: TooltipValueType | undefined) =>
     // ReactNode; our own data is always numeric, so coerce before formatting.
     const tooltipFormatter = (value: TooltipValueType | undefined) => formatValue(Number(value), valueFormat)
-    const label = `${title}. ${series.map((s) => s.label).join(' and ')} across ${points.length} points.`
+    const label = describeChart({ title, series, points, valueFormat })
 
     return (
         <div role="img" aria-label={label} style={{ height: CHART_HEIGHT }}>
