@@ -3,10 +3,12 @@ import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { Users, Plus, X, SaveIcon, XCircle, Search } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
+import Swal from 'sweetalert2'
 import DashboardLayout from '../../dashboardDesign/DashboardLayout'
+import RowActions from '../../components/RowActions'
 import type { RootState } from '../../store/store'
-import { useGetAllTeachersQuery, useAddTeacherMutation, useUpdateTeacherMutation } from './TeacherApi'
-import type { NewTeacherValues, TeacherStatus } from './types'
+import { useGetAllTeachersQuery, useAddTeacherMutation, useUpdateTeacherMutation, useDeleteTeacherMutation } from './TeacherApi'
+import type { NewTeacherValues, Teacher, TeacherStatus } from './types'
 
 // Plain Tailwind color utilities, not DaisyUI badge-* classes — those are
 // scoped to `.badge` elements and render invisible on a bare `<select>`.
@@ -21,6 +23,7 @@ const blank = <T extends string | undefined>(v: T) => (v ? v : undefined)
 const TeachersPage: React.FC = () => {
     const { user } = useSelector((state: RootState) => state.authSlice)
     const canManage = user?.permissions.includes('teachers.manage') ?? false
+    const canDelete = user?.permissions.includes('teachers.delete') ?? false
 
     const [search, setSearch] = useState('')
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -28,6 +31,7 @@ const TeachersPage: React.FC = () => {
     const { data: teachers, isLoading, isError } = useGetAllTeachersQuery()
     const [addTeacher] = useAddTeacherMutation()
     const [updateTeacher] = useUpdateTeacherMutation()
+    const [deleteTeacher] = useDeleteTeacherMutation()
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<NewTeacherValues>()
 
@@ -63,6 +67,29 @@ const TeachersPage: React.FC = () => {
         } catch {
             toast.error('Failed to update status', { id: loadingToastId })
         }
+    }
+
+    const confirmDelete = (teacher: Teacher) => {
+        Swal.fire({
+            title: 'Delete this teacher?',
+            text: `"${teacher.fullName}" will be permanently removed. A teacher with subject assignments or timetable entries cannot be deleted; set their status to Left instead.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#b91c1c',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete',
+        }).then(async (result) => {
+            if (!result.isConfirmed) return
+            try {
+                await deleteTeacher(teacher.id).unwrap()
+                Swal.fire('Deleted', `"${teacher.fullName}" was removed.`, 'success')
+            } catch (err) {
+                // A teacher with history is refused with a message naming what
+                // blocks the delete; show that instead of a generic failure.
+                const message = (err as { data?: { error?: string } })?.data?.error ?? 'Please try again'
+                Swal.fire('Could not delete', message, 'error')
+            }
+        })
     }
 
     return (
@@ -113,6 +140,7 @@ const TeachersPage: React.FC = () => {
                                     <th>TSC No.</th>
                                     <th>Contact</th>
                                     <th>Status</th>
+                                    {canDelete && <th><span className="sr-only">Actions</span></th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -140,6 +168,11 @@ const TeachersPage: React.FC = () => {
                                                 <span className={`badge capitalize border-none ${STATUS_SELECT_CLASS[teacher.status]}`}>{teacher.status.replace('_', ' ')}</span>
                                             )}
                                         </td>
+                                        {canDelete && (
+                                            <td>
+                                                <RowActions label={teacher.fullName} canDelete onDelete={() => confirmDelete(teacher)} />
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>

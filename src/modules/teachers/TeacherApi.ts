@@ -31,6 +31,13 @@ export const teacherApi = createApi({
       transformResponse: (response: ApiEnvelope<Teacher>) => response.data,
       invalidatesTags: ['Teachers'],
     }),
+
+    // Refused with a 409 naming the blocking records when the teacher has history.
+    deleteTeacher: builder.mutation<{ id: number }, number>({
+      query: (id) => ({ url: `teachers/${id}`, method: 'DELETE' }),
+      transformResponse: (response: ApiEnvelope<{ id: number }>) => response.data,
+      invalidatesTags: ['Teachers'],
+    }),
   }),
 })
 
@@ -39,4 +46,5 @@ export const {
   useGetTeacherByIdQuery,
   useAddTeacherMutation,
   useUpdateTeacherMutation,
+  useDeleteTeacherMutation,
 } = teacherApi

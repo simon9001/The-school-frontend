@@ -57,6 +57,13 @@ export const studentApi = createApi({
       transformResponse: (response: ApiEnvelope<Student>) => response.data,
       invalidatesTags: ['Students'],
     }),
+
+    // Refused with a 409 naming the blocking records when the student has history.
+    deleteStudent: builder.mutation<{ id: number }, number>({
+      query: (id) => ({ url: `students/${id}`, method: 'DELETE' }),
+      transformResponse: (response: ApiEnvelope<{ id: number }>) => response.data,
+      invalidatesTags: ['Students'],
+    }),
   }),
 })
 
@@ -68,4 +75,5 @@ export const {
   useGetStudentByIdQuery,
   useAddStudentMutation,
   useUpdateStudentMutation,
+  useDeleteStudentMutation,
 } = studentApi
