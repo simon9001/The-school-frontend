@@ -8,7 +8,7 @@
 //
 // VITE_API_DOMAIN overrides both, for pointing a build at a staging API.
 const PRODUCTION_API = 'https://ipsus-ready-school-management-system.onrender.com/api/'
-const DEVELOPMENT_API = 'http://localhost:4100/api/'
+const DEVELOPMENT_API = 'http://localhost:4102/api/'
 
 export const apiDomain =
   import.meta.env.VITE_API_DOMAIN ??
